@@ -1,0 +1,2 @@
+rootProject.name = "banks.console"
+
