@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
 	implementation(project(":banks"))
-	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter")
 	compileOnly("org.projectlombok:lombok:1.18.26")
 	annotationProcessor("org.projectlombok:lombok:1.18.26")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
@@ -23,7 +23,7 @@ dependencies {
 }
 
 application {
-	mainClass.set("ru.kslacker.banks.console.Program")
+	mainClass.set("ru.kslacker.banks.console.App")
 }
 
 dependencyManagement {
@@ -31,6 +31,8 @@ dependencyManagement {
 		mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
 	}
 }
+
+sourceSets["main"].resources.srcDir("src/resources")
 
 tasks.getByName<Test>("test") {
     useJUnitPlatform()

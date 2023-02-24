@@ -31,10 +31,12 @@ public class BankDisplayHandler extends HandlerImpl {
 		NoTransactionalBank bank = getBank();
 		writer.write(new BankRepresentation(bank).toString());
 		writer.newLine();
+		writer.flush();
 	}
 
 	private NoTransactionalBank getBank() throws IOException {
 		writer.write("Enter bank id: ");
+		writer.flush();
 		UUID bankId = UUID.fromString(reader.readLine());
 
 		return centralBank

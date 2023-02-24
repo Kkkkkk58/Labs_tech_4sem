@@ -31,10 +31,12 @@ public class CustomerInformationDisplayHandler extends HandlerImpl {
 		Customer customer = getCustomer();
 		writer.write(new CustomerRepresentation(customer).toString());
 		writer.newLine();
+		writer.flush();
 	}
 
 	private Customer getCustomer() throws IOException {
 		writer.write("Enter customer id: ");
+		writer.flush();
 		UUID customerId = UUID.fromString(reader.readLine());
 
 		return centralBank

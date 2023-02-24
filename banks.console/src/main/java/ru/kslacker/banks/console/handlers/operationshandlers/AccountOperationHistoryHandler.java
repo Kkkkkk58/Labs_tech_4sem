@@ -43,10 +43,12 @@ public class AccountOperationHistoryHandler extends HandlerImpl {
 			writer.write(new OperationInformationRepresentation(operationInformation).toString());
 			writer.newLine();
 		}
+		writer.flush();
 	}
 
 	private UUID getAccountId() throws IOException {
 		writer.write("Enter account id: ");
+		writer.flush();
 		return UUID.fromString(reader.readLine());
 	}
 }

@@ -35,10 +35,12 @@ public class CustomerInformationAddressSetterHandler extends HandlerImpl {
 
 		writer.write("Set new address for customer " + customer.getId());
 		writer.newLine();
+		writer.flush();
 	}
 
 	private Customer getCustomer() throws IOException {
 		writer.write("Enter customer id: ");
+		writer.flush();
 		UUID customerId = UUID.fromString(reader.readLine());
 
 		return centralBank
@@ -51,6 +53,7 @@ public class CustomerInformationAddressSetterHandler extends HandlerImpl {
 
 	private Address getAddress() throws IOException {
 		writer.write("Enter address: ");
+		writer.flush();
 		return new Address(reader.readLine());
 	}
 }

@@ -25,6 +25,7 @@ public class AccountCreateDebitHandler extends AccountCreateHandlerBase {
 		UnmodifiableBankAccount account = bank.createDebitAccount(type, customer, balance);
 		writer.write("Successfully created new debit account " + account.getId());
 		writer.newLine();
+		writer.flush();
 	}
 
 }

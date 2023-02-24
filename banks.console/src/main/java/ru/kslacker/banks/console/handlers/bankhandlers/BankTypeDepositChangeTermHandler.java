@@ -38,6 +38,7 @@ public class BankTypeDepositChangeTermHandler extends HandlerImpl {
 
 	private NoTransactionalBank getBank() throws IOException {
 		writer.write("Enter bank id: ");
+		writer.flush();
 		UUID bankId = UUID.fromString(reader.readLine());
 
 		return centralBank
@@ -48,11 +49,13 @@ public class BankTypeDepositChangeTermHandler extends HandlerImpl {
 
 	private UUID getTypeId() throws IOException {
 		writer.write("Enter type id: ");
+		writer.flush();
 		return UUID.fromString(reader.readLine());
 	}
 
 	private Period getTerm() throws IOException {
 		writer.write("Enter term: ");
+		writer.flush();
 		return Period.parse(reader.readLine());
 	}
 

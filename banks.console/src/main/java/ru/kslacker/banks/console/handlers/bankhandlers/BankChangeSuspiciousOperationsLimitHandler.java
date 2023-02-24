@@ -5,13 +5,14 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.UUID;
 import lombok.experimental.ExtensionMethod;
+import ru.kslacker.banks.console.extensions.StringExtensions;
 import ru.kslacker.banks.console.handlers.api.HandlerImpl;
 import ru.kslacker.banks.entities.api.NoTransactionalBank;
 import ru.kslacker.banks.models.MoneyAmount;
 import ru.kslacker.banks.services.api.CentralBank;
 import ru.kslacker.banks.tools.extensions.StreamExtensions;
 
-@ExtensionMethod(StreamExtensions.class)
+@ExtensionMethod({StreamExtensions.class, StringExtensions.class})
 public class BankChangeSuspiciousOperationsLimitHandler extends HandlerImpl {
 
 	private final CentralBank centralBank;
@@ -36,6 +37,7 @@ public class BankChangeSuspiciousOperationsLimitHandler extends HandlerImpl {
 
 	private NoTransactionalBank getBank() throws IOException {
 		writer.write("Enter bank id: ");
+		writer.flush();
 		UUID bankId = UUID.fromString(reader.readLine());
 
 		return centralBank
@@ -46,6 +48,7 @@ public class BankChangeSuspiciousOperationsLimitHandler extends HandlerImpl {
 
 	private MoneyAmount getSuspiciousOperationsLimit() throws IOException {
 		writer.write("Enter suspicious operations limit: ");
-		return reader.readLine().ToMoneyAmount();
+		writer.flush();
+		return reader.readLine().toMoneyAmount();
 	}
 }

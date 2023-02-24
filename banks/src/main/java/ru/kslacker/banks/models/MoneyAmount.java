@@ -44,7 +44,7 @@ public record MoneyAmount(BigDecimal value, Currency currency) implements Compar
 
 	@Override
 	public String toString() {
-		return currency.toString() + value.toString();
+		return currency.toString() + " " + value.toString();
 	}
 
 	private void validateCurrencies(MoneyAmount other) {

@@ -41,10 +41,12 @@ public class CustomerCreateHandler extends HandlerImpl {
 		bank.registerCustomer(customer);
 		writer.write("Successfully created customer " + customer.getId());
 		writer.newLine();
+		writer.flush();
 	}
 
 	private NoTransactionalBank getBank() throws IOException {
 		writer.write("Enter bank id: ");
+		writer.flush();
 		UUID bankId = UUID.fromString(reader.readLine());
 
 		return centralBank
@@ -56,9 +58,11 @@ public class CustomerCreateHandler extends HandlerImpl {
 	private Customer getCustomer() throws IOException {
 		CustomerBuilder customerBuilder = CustomerImpl.getCustomerBuilder();
 		writer.write("Enter first name: ");
+		writer.flush();
 		CustomerLastNameBuilder lastNameBuilder = customerBuilder
 			.withFirstName(reader.readLine());
 		writer.write("Enter last name: ");
+		writer.flush();
 		CustomerOptionalInformationBuilder optionalInfoBuilder = lastNameBuilder
 			.withLastName(reader.readLine());
 		setCustomerOptionalData(optionalInfoBuilder);
@@ -76,6 +80,7 @@ public class CustomerCreateHandler extends HandlerImpl {
 	private void setPassportData(CustomerOptionalInformationBuilder optionalInfoBuilder)
 		throws IOException {
 		writer.write("Enter passport data [optional]: ");
+		writer.flush();
 		String[] input = reader.readLine().split(" ");
 		if (input.length != 2)
 			return;
@@ -87,6 +92,7 @@ public class CustomerCreateHandler extends HandlerImpl {
 	private void setAddress(CustomerOptionalInformationBuilder optionalInfoBuilder)
 		throws IOException {
 		writer.write("Enter address [optional]: ");
+		writer.flush();
 		Address address = new Address(reader.readLine());
 		optionalInfoBuilder.withAddress(address);
 	}

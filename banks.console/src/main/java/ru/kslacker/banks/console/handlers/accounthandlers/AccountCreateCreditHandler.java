@@ -29,6 +29,7 @@ public class AccountCreateCreditHandler extends AccountCreateHandlerBase {
 		UnmodifiableBankAccount account = bank.createCreditAccount(type, customer, balance);
 		writer.write("Successfully created new credit account " + account.getId());
 		writer.newLine();
+		writer.flush();
 	}
 
 }

@@ -1,5 +1,7 @@
 package ru.kslacker.banks.console.handlers.bankhandlers;
 
+import lombok.experimental.ExtensionMethod;
+import ru.kslacker.banks.console.extensions.StringExtensions;
 import ru.kslacker.banks.console.handlers.api.HandlerImpl;
 import ru.kslacker.banks.entities.BankImpl;
 import ru.kslacker.banks.entities.api.Bank;
@@ -11,6 +13,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.time.Clock;
 
+@ExtensionMethod(StringExtensions.class)
 public class BankCreateHandler extends HandlerImpl {
 
 	private final CentralBank centralBank;
@@ -35,14 +38,17 @@ public class BankCreateHandler extends HandlerImpl {
 		centralBank.registerBank(bank);
 		writer.write("Successfully created new bank " + bank.getId());
 		writer.newLine();
+		writer.flush();
 	}
 
 	private Bank getBank() throws IOException {
 		writer.write("Enter bank's name: ");
+		writer.flush();
 		String name = reader.readLine();
 		writer.write("Enter suspicious operations limit: ");
+		writer.flush();
 		String limit = reader.readLine();
-		MoneyAmount moneyLimit = limit.ToMoneyAmount();
+		MoneyAmount moneyLimit = limit.toMoneyAmount();
 
 		return new BankImpl(name, accountFactory, moneyLimit, clock);
 	}

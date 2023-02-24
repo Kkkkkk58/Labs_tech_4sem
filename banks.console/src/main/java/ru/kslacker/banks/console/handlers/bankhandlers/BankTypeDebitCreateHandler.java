@@ -36,10 +36,12 @@ public class BankTypeDebitCreateHandler extends HandlerImpl {
 
 		writer.write("Successfully created debit type " + type.getId());
 		writer.newLine();
+		writer.flush();
 	}
 
 	private NoTransactionalBank getBank() throws IOException {
 		writer.write("Enter bank id: ");
+		writer.flush();
 		UUID bankId = UUID.fromString(reader.readLine());
 
 		return centralBank
@@ -50,8 +52,10 @@ public class BankTypeDebitCreateHandler extends HandlerImpl {
 
 	private DebitAccountType getType(NoTransactionalBank bank) throws IOException {
 		writer.write("Enter interest on balance: ");
+		writer.flush();
 		BigDecimal interestOnBalance = new BigDecimal(reader.readLine());
 		writer.write("Enter interest calculation period: ");
+		writer.flush();
 		Period period = Period.parse(reader.readLine());
 		return bank.getAccountTypeManager().createDebitAccountType(interestOnBalance, period);
 	}

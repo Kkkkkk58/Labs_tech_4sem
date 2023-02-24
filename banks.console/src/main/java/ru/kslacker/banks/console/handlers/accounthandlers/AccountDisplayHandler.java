@@ -31,10 +31,12 @@ public class AccountDisplayHandler extends HandlerImpl {
 		UnmodifiableBankAccount account = getAccount();
 		writer.write(new AccountRepresentation(account).toString());
 		writer.newLine();
+		writer.flush();
 	}
 
 	private UnmodifiableBankAccount getAccount() throws IOException {
 		writer.write("Enter account id: ");
+		writer.flush();
 		UUID accountId = UUID.fromString(reader.readLine());
 
 		return centralBank.getBanks()

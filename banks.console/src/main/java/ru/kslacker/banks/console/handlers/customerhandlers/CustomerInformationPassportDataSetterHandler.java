@@ -36,10 +36,12 @@ public class CustomerInformationPassportDataSetterHandler extends HandlerImpl {
 
 		writer.write("Set new passport data for customer " + customer.getId());
 		writer.newLine();
+		writer.flush();
 	}
 
 	private Customer getCustomer() throws IOException {
 		writer.write("Enter customer id: ");
+		writer.flush();
 		UUID customerId = UUID.fromString(reader.readLine());
 
 		return centralBank
@@ -52,8 +54,10 @@ public class CustomerInformationPassportDataSetterHandler extends HandlerImpl {
 
 	private PassportData getPassportData() throws IOException {
 		writer.write("Enter passport of number: ");
+		writer.flush();
 		String number = reader.readLine();
 		writer.write("Enter date of issue: ");
+		writer.flush();
 		LocalDate dateOfIssue = LocalDate.parse(reader.readLine());
 
 		return new PassportData(dateOfIssue, number);

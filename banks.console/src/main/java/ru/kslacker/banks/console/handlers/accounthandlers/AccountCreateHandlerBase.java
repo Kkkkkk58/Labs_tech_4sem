@@ -2,6 +2,7 @@ package ru.kslacker.banks.console.handlers.accounthandlers;
 
 import lombok.experimental.ExtensionMethod;
 import ru.kslacker.banks.bankaccounts.accounttypes.api.AccountType;
+import ru.kslacker.banks.console.extensions.StringExtensions;
 import ru.kslacker.banks.console.handlers.api.HandlerImpl;
 import ru.kslacker.banks.entities.api.Customer;
 import ru.kslacker.banks.entities.api.NoTransactionalBank;
@@ -13,7 +14,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.UUID;
 
-@ExtensionMethod(StreamExtensions.class)
+@ExtensionMethod({StreamExtensions.class, StringExtensions.class})
 public abstract class AccountCreateHandlerBase extends HandlerImpl {
 
 	private final BufferedWriter writer;
@@ -46,6 +47,7 @@ public abstract class AccountCreateHandlerBase extends HandlerImpl {
 
 	private NoTransactionalBank getBank() throws IOException {
 		writer.write("Enter bank id: ");
+		writer.flush();
 		UUID bankId = UUID.fromString(reader.readLine());
 
 		return centralBank
@@ -62,6 +64,7 @@ public abstract class AccountCreateHandlerBase extends HandlerImpl {
 
 	private Customer getCustomer(NoTransactionalBank bank) throws IOException {
 		writer.write("Enter customer id: ");
+		writer.flush();
 		UUID clientId = UUID.fromString(reader.readLine());
 
 		return bank
@@ -72,13 +75,13 @@ public abstract class AccountCreateHandlerBase extends HandlerImpl {
 
 	private MoneyAmount getBalance() throws IOException {
 		writer.write("Enter initial balance [optional]: ");
+		writer.flush();
 		String input = reader.readLine();
 		if (input.isEmpty()) {
 			return null;
 		}
 
-		//TODO
-		return input.ToMoneyAmount();
+		return input.toMoneyAmount();
 	}
 
 }

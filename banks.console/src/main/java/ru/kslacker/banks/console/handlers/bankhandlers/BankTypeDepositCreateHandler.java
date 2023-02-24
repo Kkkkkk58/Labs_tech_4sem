@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.experimental.ExtensionMethod;
 import ru.kslacker.banks.bankaccounts.accounttypes.api.DepositAccountType;
+import ru.kslacker.banks.console.extensions.StringExtensions;
 import ru.kslacker.banks.console.handlers.api.HandlerImpl;
 import ru.kslacker.banks.entities.api.NoTransactionalBank;
 import ru.kslacker.banks.models.InterestOnBalanceLayer;
@@ -18,7 +19,7 @@ import ru.kslacker.banks.models.MoneyAmount;
 import ru.kslacker.banks.services.api.CentralBank;
 import ru.kslacker.banks.tools.extensions.StreamExtensions;
 
-@ExtensionMethod(StreamExtensions.class)
+@ExtensionMethod({StreamExtensions.class, StringExtensions.class})
 public class BankTypeDepositCreateHandler extends HandlerImpl {
 
 	private final CentralBank centralBank;
@@ -41,10 +42,12 @@ public class BankTypeDepositCreateHandler extends HandlerImpl {
 
 		writer.write("Successfully created deposit type " + type.getId());
 		writer.newLine();
+		writer.flush();
 	}
 
 	private NoTransactionalBank getBank() throws IOException {
 		writer.write("Enter bank id: ");
+		writer.flush();
 		UUID bankId = UUID.fromString(reader.readLine());
 
 		return centralBank
@@ -57,8 +60,10 @@ public class BankTypeDepositCreateHandler extends HandlerImpl {
 		InterestOnBalancePolicy interestOnBalancePolicy = getInterestOnBalancePolicy();
 
 		writer.write("Enter deposit term: ");
+		writer.flush();
 		Period term = Period.parse(reader.readLine());
 		writer.write("Enter interest calculation period: ");
+		writer.flush();
 		Period period = Period.parse(reader.readLine());
 
 		return bank.getAccountTypeManager().createDepositAccountType(term, interestOnBalancePolicy, period);
@@ -67,19 +72,21 @@ public class BankTypeDepositCreateHandler extends HandlerImpl {
 	private InterestOnBalancePolicy getInterestOnBalancePolicy() throws IOException {
 		List<InterestOnBalanceLayer> interestOnBalancePolicyLayers = new ArrayList<>();
 		writer.write("Enter layer: ");
+		writer.flush();
 		String input = reader.readLine();
 		while (!input.isEmpty())
 		{
 			String[] values = input.split(" ");
-			if (values.length != 2) {
+			if (values.length != 3) {
 				throw new IllegalArgumentException();
 			}
 
-			MoneyAmount requiredBalance = values[0].ToMoneyAmount();
-			BigDecimal interest = new BigDecimal(values[1]);
-			var layer = new InterestOnBalanceLayer(requiredBalance, interest);
+			MoneyAmount requiredBalance = String.join(" ", values[0], values[1]).toMoneyAmount();
+			BigDecimal interest = new BigDecimal(values[2]);
+			InterestOnBalanceLayer layer = new InterestOnBalanceLayer(requiredBalance, interest);
 			interestOnBalancePolicyLayers.add(layer);
 			writer.write("Enter layer: ");
+			writer.flush();
 			input = reader.readLine();
 		}
 

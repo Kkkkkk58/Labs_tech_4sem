@@ -31,10 +31,12 @@ public class OperationDisplayHandler extends HandlerImpl {
 		ReadOnlyOperationInformation information = getOperationInformation();
 		writer.write(new OperationInformationRepresentation(information).toString());
 		writer.newLine();
+		writer.flush();
 	}
 
 	private ReadOnlyOperationInformation getOperationInformation() throws IOException {
 		writer.write("Enter operation id: ");
+		writer.flush();
 		UUID customerId = UUID.fromString(reader.readLine());
 
 		return centralBank

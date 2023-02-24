@@ -12,7 +12,6 @@ public class OverallOperationHistoryHandler extends HandlerImpl {
 	private final CentralBank centralBank;
 	private final BufferedWriter writer;
 
-
 	public OverallOperationHistoryHandler(CentralBank centralBank, BufferedWriter writer) {
 		super("overall");
 		this.centralBank = centralBank;
@@ -25,5 +24,6 @@ public class OverallOperationHistoryHandler extends HandlerImpl {
 			writer.write(new OperationInformationRepresentation(info).toString());
 			writer.newLine();
 		}
+		writer.flush();
 	}
 }

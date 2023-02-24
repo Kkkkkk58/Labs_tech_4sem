@@ -25,5 +25,6 @@ public class AccountCreateDepositHandler extends AccountCreateHandlerBase {
 		UnmodifiableBankAccount account = bank.createDepositAccount(type, customer, balance);
 		writer.write("Successfully created new deposit account " + account.getId());
 		writer.newLine();
+		writer.flush();
 	}
 }

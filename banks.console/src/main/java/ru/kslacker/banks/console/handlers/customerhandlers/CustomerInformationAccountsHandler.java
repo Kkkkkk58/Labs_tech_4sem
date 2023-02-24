@@ -34,6 +34,7 @@ public class CustomerInformationAccountsHandler extends HandlerImpl {
 			writer.write(new AccountRepresentation(account).toString());
 			writer.newLine();
 		}
+		writer.flush();
 	}
 
 	private Collection<UnmodifiableBankAccount> getCustomerAccounts(UUID customerId)
@@ -47,6 +48,7 @@ public class CustomerInformationAccountsHandler extends HandlerImpl {
 
 	private UUID getCustomerId() throws IOException {
 		writer.write("Enter customer id: ");
+		writer.flush();
 		return UUID.fromString(reader.readLine());
 	}
 }

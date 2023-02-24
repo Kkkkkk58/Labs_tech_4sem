@@ -27,10 +27,12 @@ public class OperationCancellationHandler extends HandlerImpl {
 		centralBank.cancelTransaction(operationId);
 		writer.write("Transaction " + operationId + " cancellation was successful");
 		writer.newLine();
+		writer.flush();
 	}
 
 	private UUID getOperationId() throws IOException {
 		writer.write("Enter operation id: ");
+		writer.flush();
 		return UUID.fromString(reader.readLine());
 	}
 }
