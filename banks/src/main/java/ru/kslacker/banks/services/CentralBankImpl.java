@@ -18,11 +18,7 @@ import ru.kslacker.banks.transactions.TransactionImpl;
 import ru.kslacker.banks.transactions.states.SuccessfulTransactionState;
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @ExtensionMethod(StreamExtensions.class)
 public class CentralBankImpl implements CentralBank {
@@ -31,6 +27,11 @@ public class CentralBankImpl implements CentralBank {
 	private final Clock clock;
 	private final List<Transaction> transactions;
 
+	/**
+	 * Constructor of default implementation of CentralBank
+	 *
+	 * @param clock clock to track current time
+	 */
 	public CentralBankImpl(Clock clock) {
 		this.banks = new ArrayList<>();
 		this.clock = clock;
@@ -44,7 +45,10 @@ public class CentralBankImpl implements CentralBank {
 
 	@Override
 	public Collection<ReadOnlyOperationInformation> getOperations() {
-		return transactions.stream().map(t -> (ReadOnlyOperationInformation) t.getInformation()).toList();
+		return transactions
+			.stream()
+			.map(t -> (ReadOnlyOperationInformation) t.getInformation())
+			.toList();
 	}
 
 	@Override
@@ -67,18 +71,34 @@ public class CentralBankImpl implements CentralBank {
 
 	@Override
 	public ReadOnlyOperationInformation withdraw(UUID accountId, MoneyAmount moneyAmount) {
-		CommandExecutingBankAccount commandExecutingBankAccount = getCommandExecutingBankAccount(accountId);
-		OperationInformation operationInformation = new OperationInformation(commandExecutingBankAccount, moneyAmount, LocalDateTime.now(clock));
-		TransactionImpl transaction = new TransactionImpl(operationInformation, new WithdrawalCommand());
+		CommandExecutingBankAccount commandExecutingBankAccount =
+			getCommandExecutingBankAccount(accountId);
+
+		OperationInformation operationInformation = new OperationInformation(
+			commandExecutingBankAccount,
+			moneyAmount,
+			LocalDateTime.now(clock));
+
+		TransactionImpl transaction = new TransactionImpl(
+			operationInformation,
+			new WithdrawalCommand());
 
 		return performTransaction(transaction);
 	}
 
 	@Override
 	public ReadOnlyOperationInformation replenish(UUID accountId, MoneyAmount moneyAmount) {
-		CommandExecutingBankAccount commandExecutingBankAccount = getCommandExecutingBankAccount(accountId);
-		OperationInformation operationInformation = new OperationInformation(commandExecutingBankAccount, moneyAmount, LocalDateTime.now(clock));
-		TransactionImpl transaction = new TransactionImpl(operationInformation, new ReplenishmentCommand());
+		CommandExecutingBankAccount commandExecutingBankAccount =
+			getCommandExecutingBankAccount(accountId);
+
+		OperationInformation operationInformation = new OperationInformation(
+			commandExecutingBankAccount,
+			moneyAmount,
+			LocalDateTime.now(clock));
+
+		TransactionImpl transaction = new TransactionImpl(
+			operationInformation,
+			new ReplenishmentCommand());
 
 		return performTransaction(transaction);
 	}
@@ -89,9 +109,14 @@ public class CentralBankImpl implements CentralBank {
 		CommandExecutingBankAccount from = getCommandExecutingBankAccount(fromAccountId);
 		CommandExecutingBankAccount to = getCommandExecutingBankAccount(toAccountId);
 
-		OperationInformation operationInformation = new OperationInformation(from, moneyAmount,
+		OperationInformation operationInformation = new OperationInformation(
+			from,
+			moneyAmount,
 			LocalDateTime.now(clock));
-		TransactionImpl transaction = new TransactionImpl(operationInformation, new TransferCommand(to));
+
+		TransactionImpl transaction = new TransactionImpl(
+			operationInformation,
+			new TransferCommand(to));
 
 		return performTransaction(transaction);
 	}
@@ -107,7 +132,8 @@ public class CentralBankImpl implements CentralBank {
 	}
 
 	private CommandExecutingBankAccount getCommandExecutingBankAccount(UUID accountId) {
-		return banks.stream()
+		return banks
+			.stream()
 			.single(bank -> bank.findAccount(accountId).isPresent())
 			.getExecutingAccount(accountId);
 	}

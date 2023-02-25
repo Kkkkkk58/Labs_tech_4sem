@@ -8,8 +8,13 @@ public class CustomerException extends BanksDomainException {
 		super(message);
 	}
 
-	public static CustomerException notifierIsNotSet(UUID customerId)
-	{
+	/**
+	 * Exception thrown when trying to add notifier when initial notifier is not set
+	 *
+	 * @param customerId id of the customer
+	 * @return exception with corresponding message
+	 */
+	public static CustomerException notifierIsNotSet(UUID customerId) {
 		return new CustomerException("Customer " + customerId + " has no notifier to add");
 	}
 }

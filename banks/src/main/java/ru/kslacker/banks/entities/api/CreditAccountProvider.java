@@ -6,5 +6,16 @@ import ru.kslacker.banks.models.MoneyAmount;
 
 public interface CreditAccountProvider {
 
-	UnmodifiableBankAccount createCreditAccount(AccountType type, Customer customer, MoneyAmount balance);
+	/**
+	 * Method to create credit account
+	 *
+	 * @param type     credit account type
+	 * @param customer holder of the account
+	 * @param balance  initial balance of the account
+	 * @return information about created credit account
+	 */
+	UnmodifiableBankAccount createCreditAccount(
+		AccountType type,
+		Customer customer,
+		MoneyAmount balance);
 }

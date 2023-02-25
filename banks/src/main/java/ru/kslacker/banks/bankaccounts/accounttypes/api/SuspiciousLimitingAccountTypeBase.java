@@ -12,6 +12,11 @@ public abstract class SuspiciousLimitingAccountTypeBase implements SuspiciousLim
 	private final UUID id;
 	private MoneyAmount suspiciousAccountsOperationsLimit;
 
+	/**
+	 * Constructor of abstract base class with limits on suspicious operations
+	 *
+	 * @param suspiciousAccountsOperationsLimit the limit
+	 */
 	protected SuspiciousLimitingAccountTypeBase(MoneyAmount suspiciousAccountsOperationsLimit) {
 		this.id = UUID.randomUUID();
 		this.suspiciousAccountsOperationsLimit = suspiciousAccountsOperationsLimit;

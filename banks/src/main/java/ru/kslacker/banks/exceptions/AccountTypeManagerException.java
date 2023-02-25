@@ -6,8 +6,12 @@ public class AccountTypeManagerException extends BanksDomainException {
 		super(message);
 	}
 
-	public static AccountTypeManagerException invalidAccountType()
-	{
+	/**
+	 * Exception thrown when the account type provided to manager to create is of invalid type
+	 *
+	 * @return exception with corresponding message
+	 */
+	public static AccountTypeManagerException invalidAccountType() {
 		return new AccountTypeManagerException("Provided invalid account type");
 	}
 }

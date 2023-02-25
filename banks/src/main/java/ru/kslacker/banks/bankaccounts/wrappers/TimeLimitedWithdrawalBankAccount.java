@@ -14,6 +14,12 @@ public class TimeLimitedWithdrawalBankAccount extends BankAccountWrapper {
 	private final TimeLimitedWithdrawalAccountType type;
 	private final Clock clock;
 
+	/**
+	 * Bank account that has time limits on withdrawal
+	 *
+	 * @param wrapped wrapped bank account
+	 * @param clock   clock instance to track time
+	 */
 	public TimeLimitedWithdrawalBankAccount(BankAccount wrapped, Clock clock) {
 
 		super(wrapped);

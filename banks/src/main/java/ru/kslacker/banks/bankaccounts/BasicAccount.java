@@ -29,6 +29,13 @@ public class BasicAccount implements BankAccount {
 	private final LocalDateTime creationDate;
 	private final MoneyAmount initialBalance;
 
+	/**
+	 * Constructor of basic account with withdrawal and replenishment
+	 * @param type bank account type
+	 * @param holder bank client, holder of the account
+	 * @param balance initial balance of account
+	 * @param clock instance of clock to track current time
+	 */
 	public BasicAccount(
 		AccountType type,
 		Customer holder,

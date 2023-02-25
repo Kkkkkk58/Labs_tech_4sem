@@ -72,7 +72,7 @@ public class CustomerCreateHandler extends HandlerImpl {
 
 	private void setCustomerOptionalData(CustomerOptionalInformationBuilder optionalInfoBuilder)
 		throws IOException {
-		optionalInfoBuilder.withNotifier(new ConsoleNotifier());
+		optionalInfoBuilder.withNotifier(new ConsoleNotifier(writer));
 		setPassportData(optionalInfoBuilder);
 		setAddress(optionalInfoBuilder);
 	}

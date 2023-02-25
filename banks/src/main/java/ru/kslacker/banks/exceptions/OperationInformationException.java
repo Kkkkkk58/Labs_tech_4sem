@@ -6,8 +6,12 @@ public class OperationInformationException extends BanksDomainException {
 		super(message);
 	}
 
-	public static OperationInformationException isAlreadyCompleted()
-	{
+	/**
+	 * Exception thrown when trying to set completed status after completion
+	 *
+	 * @return exception with corresponding message
+	 */
+	public static OperationInformationException isAlreadyCompleted() {
 		return new OperationInformationException("Operation is already completed");
 	}
 }

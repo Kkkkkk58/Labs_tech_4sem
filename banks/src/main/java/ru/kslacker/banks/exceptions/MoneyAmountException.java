@@ -9,13 +9,25 @@ public class MoneyAmountException extends BanksDomainException {
 		super(message);
 	}
 
-	public static MoneyAmountException negativeAmountException(BigDecimal value)
-	{
-		return new MoneyAmountException("Can't convert negative value " + value + " to money amount");
+	/**
+	 * Exception thrown when trying to create negative money amount
+	 *
+	 * @param value transferred value
+	 * @return exception with corresponding message
+	 */
+	public static MoneyAmountException negativeAmountException(BigDecimal value) {
+		return new MoneyAmountException(
+			"Can't convert negative value " + value + " to money amount");
 	}
 
-	public static MoneyAmountException differentCurrenciesException(Currency a, Currency b)
-	{
+	/**
+	 * Exception thrown when operation is performed with different currencies
+	 *
+	 * @param a MoneyAmount
+	 * @param b another MoneyAmount
+	 * @return exception with corresponding message
+	 */
+	public static MoneyAmountException differentCurrenciesException(Currency a, Currency b) {
 		return new MoneyAmountException(
 			"Can't perform operations with different currencies: " + a + " and " + b);
 	}

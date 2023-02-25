@@ -6,8 +6,12 @@ public class InterestCalculationException extends BanksDomainException {
 		super(message);
 	}
 
-	public static InterestCalculationException invalidUpdateDate()
-	{
+	/**
+	 * Exception thrown when update date is invalid (ex. before current date)
+	 *
+	 * @return exception with corresponding message
+	 */
+	public static InterestCalculationException invalidUpdateDate() {
 		return new InterestCalculationException("Update date is invalid");
 	}
 }

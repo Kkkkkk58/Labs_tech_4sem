@@ -1,5 +1,6 @@
 package ru.kslacker.banks.entities;
 
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.EqualsAndHashCode.Include;
@@ -15,7 +16,6 @@ import ru.kslacker.banks.eventargs.CustomerAccountChangesEventArgs;
 import ru.kslacker.banks.exceptions.CustomerException;
 import ru.kslacker.banks.models.Address;
 import ru.kslacker.banks.models.PassportData;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -33,6 +33,16 @@ public class CustomerImpl implements Customer {
 	private final String firstName;
 	private final String lastName;
 
+	/**
+	 * Constructor of default customer implementation
+	 *
+	 * @param id           customer id
+	 * @param firstName    customer first name
+	 * @param lastName     customer last name
+	 * @param notifier     customer notifier
+	 * @param address      customer address
+	 * @param passportData customer passport data
+	 */
 	private CustomerImpl(
 		UUID id,
 		String firstName,
@@ -49,6 +59,11 @@ public class CustomerImpl implements Customer {
 		this.passportData = passportData;
 	}
 
+	/**
+	 * Method to get instance of customer builder
+	 *
+	 * @return customer builder
+	 */
 	public static CustomerBuilder getCustomerBuilder() {
 		return new CustomerBuilderImpl();
 	}
@@ -75,7 +90,9 @@ public class CustomerImpl implements Customer {
 		}
 	}
 
-	private static class CustomerBuilderImpl implements CustomerBuilder, CustomerLastNameBuilder,
+	private static class CustomerBuilderImpl implements
+		CustomerBuilder,
+		CustomerLastNameBuilder,
 		CustomerOptionalInformationBuilder {
 
 		private String firstName;
@@ -123,7 +140,8 @@ public class CustomerImpl implements Customer {
 				throw new IllegalArgumentException();
 			}
 
-			Customer customer = new CustomerImpl(UUID.randomUUID(), firstName, lastName, notifier, address, passportData);
+			Customer customer = new CustomerImpl(UUID.randomUUID(), firstName, lastName, notifier,
+				address, passportData);
 			reset();
 
 			return customer;

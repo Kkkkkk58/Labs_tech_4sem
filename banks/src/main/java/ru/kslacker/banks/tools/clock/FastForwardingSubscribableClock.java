@@ -5,19 +5,25 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
-
 import java.util.function.BiConsumer;
 import ru.kslacker.banks.eventargs.DateChangedEventArgs;
 import ru.kslacker.banks.tools.eventhandling.EventHandler;
 import ru.kslacker.banks.tools.eventhandling.Subscribable;
 
 
-public class FastForwardingSubscribableClock extends FastForwardingClock implements Subscribable<DateChangedEventArgs> {
+public class FastForwardingSubscribableClock extends FastForwardingClock implements
+	Subscribable<DateChangedEventArgs> {
 
 	private LocalDateTime now;
 	private final ZoneId zoneId;
 	private final EventHandler<DateChangedEventArgs> eventHandler;
 
+	/**
+	 * Constructor of clock that lets skip time and subscribe to events
+	 *
+	 * @param curTime current time
+	 * @param zoneId  time zone id
+	 */
 	public FastForwardingSubscribableClock(LocalDateTime curTime, ZoneId zoneId) {
 		this.now = curTime;
 		this.zoneId = zoneId;

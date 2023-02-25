@@ -7,6 +7,11 @@ import ru.kslacker.banks.transactions.Transaction;
 
 public class NonNegativeBalanceBankAccount extends BankAccountWrapper {
 
+	/**
+	 * Bank account that doesn't support negative balances
+	 *
+	 * @param wrapped wrapped bank account
+	 */
 	public NonNegativeBalanceBankAccount(BankAccount wrapped) {
 		super(wrapped);
 	}

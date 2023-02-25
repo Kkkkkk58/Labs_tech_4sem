@@ -25,8 +25,15 @@ public class InterestCalculationBankAccount extends BankAccountWrapper {
 	private LocalDateTime lastUpdate;
 	private LocalDateTime date;
 
-	public InterestCalculationBankAccount(BankAccount wrapped, Subscribable<DateChangedEventArgs> clock)
-	{
+	/**
+	 * Constructor of bank account that performs interest on balance calculations
+	 *
+	 * @param wrapped wrapped bank account
+	 * @param updater instance of updater to send notifications about interest calculation
+	 */
+	public InterestCalculationBankAccount(
+		BankAccount wrapped,
+		Subscribable<DateChangedEventArgs> updater) {
 
 		super(wrapped);
 
@@ -37,17 +44,16 @@ public class InterestCalculationBankAccount extends BankAccountWrapper {
 		this.type = accountType;
 		this.date = this.lastUpdate = getCreationDate();
 		this.savings = getBalance().multipliedBy(getPercent(date));
-		clock.subscribe(this::update);
+		updater.subscribe(this::update);
 	}
 
-	public void replenish(Transaction transaction)
-	{
+	public void replenish(Transaction transaction) {
 		super.replenish(transaction);
-		savings = savings.add(transaction.getInformation().getOperatedAmount().multipliedBy(getPercent(date)));
+		savings = savings.add(
+			transaction.getInformation().getOperatedAmount().multipliedBy(getPercent(date)));
 	}
 
-	public MoneyAmount withdraw(Transaction transaction)
-	{
+	public MoneyAmount withdraw(Transaction transaction) {
 		super.withdraw(transaction);
 
 		MoneyAmount moneyAmount = transaction.getInformation().getOperatedAmount();
@@ -56,8 +62,7 @@ public class InterestCalculationBankAccount extends BankAccountWrapper {
 		return moneyAmount;
 	}
 
-	private void update(Object sender, DateChangedEventArgs eventArgs)
-	{
+	private void update(Object sender, DateChangedEventArgs eventArgs) {
 
 		if (eventArgs.date().isBefore(date)) {
 			throw InterestCalculationException.invalidUpdateDate();
@@ -70,21 +75,22 @@ public class InterestCalculationBankAccount extends BankAccountWrapper {
 		}
 
 		OperationInformation operationInformation = new OperationInformation(this, savings, date);
-		Transaction transaction = new TransactionImpl(operationInformation, new ReplenishmentCommand());
+		Transaction transaction = new TransactionImpl(
+			operationInformation,
+			new ReplenishmentCommand());
 		addPercents(percentCalculationTimes, transaction);
-		lastUpdate = lastUpdate.plus(type.getInterestCalculationPeriod().multipliedBy(percentCalculationTimes));
+		lastUpdate = lastUpdate.plus(
+			type.getInterestCalculationPeriod().multipliedBy(percentCalculationTimes));
 	}
 
-	private BigDecimal getPercent(LocalDateTime date)
-	{
+	private BigDecimal getPercent(LocalDateTime date) {
 		int days = Year.of(date.getYear()).length();
-		return type.getInterestPercent(getInitialBalance()).divide(BigDecimal.valueOf(days), 10, RoundingMode.HALF_UP);
+		return type.getInterestPercent(getInitialBalance())
+			.divide(BigDecimal.valueOf(days), 10, RoundingMode.HALF_UP);
 	}
 
-	private void addPercents(int percentCalculationTimes, Transaction transaction)
-	{
-		for (int i = 1; i < percentCalculationTimes; ++i)
-		{
+	private void addPercents(int percentCalculationTimes, Transaction transaction) {
+		for (int i = 1; i < percentCalculationTimes; ++i) {
 			LocalDateTime date = lastUpdate.plusMonths(i);
 			savings = savings.multipliedBy(getPercent(date).add(BigDecimal.ONE));
 		}
@@ -95,8 +101,8 @@ public class InterestCalculationBankAccount extends BankAccountWrapper {
 		transaction.setState(new SuccessfulTransactionState(transaction));
 	}
 
-	private int getInterestCalculationTimes()
-	{
-		return (int) (ChronoUnit.DAYS.between(lastUpdate, date) / type.getInterestCalculationPeriod().get(ChronoUnit.DAYS));
+	private int getInterestCalculationTimes() {
+		return (int) (ChronoUnit.DAYS.between(lastUpdate, date)
+			/ type.getInterestCalculationPeriod().get(ChronoUnit.DAYS));
 	}
 }

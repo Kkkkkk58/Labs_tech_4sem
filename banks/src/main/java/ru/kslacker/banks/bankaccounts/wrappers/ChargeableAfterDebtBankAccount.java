@@ -6,6 +6,7 @@ import ru.kslacker.banks.exceptions.AccountWrapperException;
 import ru.kslacker.banks.exceptions.TransactionException;
 import ru.kslacker.banks.models.MoneyAmount;
 import ru.kslacker.banks.transactions.Transaction;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -13,6 +14,11 @@ public class ChargeableAfterDebtBankAccount extends BankAccountWrapper {
 
 	private final ChargeableAccountType type;
 
+	/**
+	 * Constructor of account that takes charge after reaching debt limit
+	 *
+	 * @param wrapped wrapped bank account
+	 */
 	public ChargeableAfterDebtBankAccount(BankAccount wrapped) {
 		super(wrapped);
 
@@ -35,17 +41,16 @@ public class ChargeableAfterDebtBankAccount extends BankAccountWrapper {
 		super.replenish(transaction);
 	}
 
-	private void applyWithdrawalCharge(Transaction transaction)
-	{
-		if (Objects.equals(getDebt().value(), BigDecimal.ZERO))
+	private void applyWithdrawalCharge(Transaction transaction) {
+		if (Objects.equals(getDebt().value(), BigDecimal.ZERO)) {
 			return;
+		}
 
 		MoneyAmount moneyAmount = transaction.getInformation().getOperatedAmount();
 		transaction.getInformation().setOperatedAmount(moneyAmount.add(type.getCharge()));
 	}
 
-	private void applyReplenishCharge(Transaction transaction)
-	{
+	private void applyReplenishCharge(Transaction transaction) {
 		if (Objects.equals(getDebt().value(), BigDecimal.ZERO)) {
 			return;
 		}

@@ -1,12 +1,12 @@
 package ru.kslacker.banks.models;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.EqualsAndHashCode.Include;
 import lombok.Getter;
 import lombok.Setter;
 import ru.kslacker.banks.bankaccounts.CommandExecutingBankAccount;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -20,7 +20,11 @@ public class OperationInformation implements ReadOnlyOperationInformation {
 	private final LocalDateTime initTime;
 	private LocalDateTime completionTime;
 
-	public OperationInformation(CommandExecutingBankAccount account, MoneyAmount operatedAmount, LocalDateTime initTime) {
+	public OperationInformation(
+		CommandExecutingBankAccount account,
+		MoneyAmount operatedAmount,
+		LocalDateTime initTime) {
+
 		this.id = UUID.randomUUID();
 		this.account = account;
 		this.operatedAmount = operatedAmount;

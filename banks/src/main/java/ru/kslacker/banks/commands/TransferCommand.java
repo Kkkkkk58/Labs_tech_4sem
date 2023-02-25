@@ -18,6 +18,7 @@ public class TransferCommand extends Command {
 
 	@Override
 	public void undo(Transaction transaction) {
-		receiver.execute(new TransferCommand(transaction.getInformation().getAccount()), transaction);
+		receiver.execute(
+			new TransferCommand(transaction.getInformation().getAccount()), transaction);
 	}
 }

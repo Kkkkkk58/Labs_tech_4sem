@@ -11,12 +11,17 @@ public class TransactionImpl implements Transaction {
 	private final OperationInformation information;
 	private TransactionState state;
 
+	/**
+	 * Constructor of default transaction implementation
+	 *
+	 * @param information transaction details
+	 * @param command     command to execute
+	 */
 	public TransactionImpl(OperationInformation information, Command command) {
 		this.information = information;
 		this.command = command;
 		this.state = new NewTransactionState(this);
 	}
-
 
 	@Override
 	public OperationInformation getInformation() {

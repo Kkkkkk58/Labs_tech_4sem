@@ -6,5 +6,16 @@ import ru.kslacker.banks.models.MoneyAmount;
 
 public interface DebitAccountProvider {
 
-	UnmodifiableBankAccount createDebitAccount(AccountType type, Customer customer, MoneyAmount balance);
+	/**
+	 * Method to create new debit account
+	 *
+	 * @param type     debit account type
+	 * @param customer account holder
+	 * @param balance  initial balance of the account
+	 * @return created account info
+	 */
+	UnmodifiableBankAccount createDebitAccount(
+		AccountType type,
+		Customer customer,
+		MoneyAmount balance);
 }

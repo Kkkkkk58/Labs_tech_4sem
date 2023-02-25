@@ -1,7 +1,7 @@
 package ru.kslacker.banks.models;
 
-import lombok.Data;
 import java.time.LocalDate;
+import lombok.Data;
 
 @Data
 public abstract class DocumentData {

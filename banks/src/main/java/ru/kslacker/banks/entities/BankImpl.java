@@ -1,5 +1,14 @@
 package ru.kslacker.banks.entities;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.EqualsAndHashCode.Include;
 import lombok.experimental.ExtensionMethod;
@@ -24,15 +33,6 @@ import ru.kslacker.banks.models.AccountFactory;
 import ru.kslacker.banks.models.Message;
 import ru.kslacker.banks.models.MoneyAmount;
 import ru.kslacker.banks.tools.extensions.StreamExtensions;
-import java.time.Clock;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ExtensionMethod(StreamExtensions.class)
@@ -48,7 +48,19 @@ public class BankImpl implements Bank {
 	private final String name;
 	private final AccountTypeManager accountTypeManager;
 
-	public BankImpl(String name, AccountFactory accountFactory, MoneyAmount suspiciousOperationsLimit, Clock clock) {
+	/**
+	 * Constructor of default bank implementation
+	 *
+	 * @param name                      name of the bank
+	 * @param accountFactory            factory providing accounts
+	 * @param suspiciousOperationsLimit limit on operations with suspicious accounts
+	 * @param clock                     clock to track time
+	 */
+	public BankImpl(
+		String name,
+		AccountFactory accountFactory,
+		MoneyAmount suspiciousOperationsLimit,
+		Clock clock) {
 
 		this.id = UUID.randomUUID();
 		this.name = name;
@@ -57,8 +69,8 @@ public class BankImpl implements Bank {
 		this.subscribers = new ArrayList<>();
 		this.customers = new ArrayList<>();
 		this.clock = clock;
-		// TODO DI
-		this.accountTypeManager = new ObservableAccountTypeManager(new AccountTypeManagerImpl(suspiciousOperationsLimit), this::notifySubscribers);
+		this.accountTypeManager = new ObservableAccountTypeManager(
+			new AccountTypeManagerImpl(suspiciousOperationsLimit), this::notifySubscribers);
 	}
 
 	@Override
@@ -136,8 +148,9 @@ public class BankImpl implements Bank {
 
 	@Override
 	public Customer registerCustomer(Customer customer) {
-		if (customers.contains(customer))
+		if (customers.contains(customer)) {
 			throw BankException.customerAlreadyExists(id, customer.getId());
+		}
 
 		customers.add(customer);
 		subscribe(customer);
@@ -164,7 +177,9 @@ public class BankImpl implements Bank {
 			.stream()
 			.filter(account -> account.getId().equals(accountId))
 			.map(account -> (UnmodifiableBankAccount) account)
-			.reduce((a, b) -> { throw new UnsupportedOperationException(); });
+			.reduce((a, b) -> {
+				throw new UnsupportedOperationException();
+			});
 	}
 
 	@Override
@@ -174,52 +189,48 @@ public class BankImpl implements Bank {
 	}
 
 	// TODO Add subscriptions to interface
-	public void subscribe(Subscriber<CustomerAccountChangesEventArgs> subscriber)
-	{
+	public void subscribe(Subscriber<CustomerAccountChangesEventArgs> subscriber) {
 		if (subscribers.contains(subscriber)) {
 			throw SubscriptionException.alreadySubscribed(subscriber.getId());
 		}
-		if (customers.stream().noneMatch(customer -> customer.getId().equals(subscriber.getId()))){
+		if (customers.stream().noneMatch(customer -> customer.getId().equals(subscriber.getId()))) {
 			throw BankException.customerNotFound(subscriber.getId());
 		}
 
 		subscribers.add(subscriber);
 	}
 
-	public void unsubscribe(Subscriber<CustomerAccountChangesEventArgs> subscriber)
-	{
-		if (!subscribers.remove(subscriber))
+	public void unsubscribe(Subscriber<CustomerAccountChangesEventArgs> subscriber) {
+		if (!subscribers.remove(subscriber)) {
 			throw SubscriptionException.subscriberNotFound(subscriber.getId());
+		}
 	}
 
-	private void notifySubscribers(Object sender, BankAccountTypeChangesEventArgs eventArgs)
-	{
+	private void notifySubscribers(Object sender, BankAccountTypeChangesEventArgs eventArgs) {
 
 		Message message = createMessage(eventArgs);
 		var messageEventArgs = new CustomerAccountChangesEventArgs(message);
 
-		for (Subscriber<CustomerAccountChangesEventArgs> subscriber : subscribers)
-		{
-			NotifySubscriberWithSuitableAccount(subscriber, messageEventArgs, eventArgs.accountType());
+		for (Subscriber<CustomerAccountChangesEventArgs> subscriber : subscribers) {
+			NotifySubscriberWithSuitableAccount(subscriber, messageEventArgs,
+				eventArgs.accountType());
 		}
 	}
 
 	private void NotifySubscriberWithSuitableAccount(
 		Subscriber<CustomerAccountChangesEventArgs> subscriber,
 		CustomerAccountChangesEventArgs messageEventArgs,
-		AccountType accountType)
-	{
+		AccountType accountType) {
 		Customer customer = customers.stream()
 			.single(c -> c.getId().equals(subscriber.getId()));
 
-		if (getAccounts(customer.getId()).stream().anyMatch(account -> account.getType().equals(accountType)))
-		{
+		if (getAccounts(customer.getId()).stream()
+			.anyMatch(account -> account.getType().equals(accountType))) {
 			subscriber.update(this, messageEventArgs);
 		}
 	}
 
-	private Message createMessage(BankAccountTypeChangesEventArgs eventArgs)
-	{
+	private Message createMessage(BankAccountTypeChangesEventArgs eventArgs) {
 		return new Message(
 			name,
 			"Changes in your account type " + eventArgs.accountType().getId() + " details",

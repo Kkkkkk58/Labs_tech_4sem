@@ -1,25 +1,20 @@
 package ru.kslacker.banks.accounttypemanager;
 
-import java.math.BigDecimal;
-import java.time.Period;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.experimental.ExtensionMethod;
 import ru.kslacker.banks.accounttypemanager.api.AccountTypeManager;
 import ru.kslacker.banks.bankaccounts.accounttypes.CreditAccountTypeImpl;
 import ru.kslacker.banks.bankaccounts.accounttypes.DebitAccountTypeImpl;
 import ru.kslacker.banks.bankaccounts.accounttypes.DepositAccountTypeImpl;
-import ru.kslacker.banks.bankaccounts.accounttypes.api.AccountType;
-import ru.kslacker.banks.bankaccounts.accounttypes.api.CreditAccountType;
-import ru.kslacker.banks.bankaccounts.accounttypes.api.DebitAccountType;
-import ru.kslacker.banks.bankaccounts.accounttypes.api.DepositAccountType;
-import ru.kslacker.banks.bankaccounts.accounttypes.api.InterestCalculationAccountType;
-import ru.kslacker.banks.bankaccounts.accounttypes.api.SuspiciousLimitingAccountType;
+import ru.kslacker.banks.bankaccounts.accounttypes.api.*;
 import ru.kslacker.banks.exceptions.AccountTypeManagerException;
 import ru.kslacker.banks.models.InterestOnBalancePolicy;
 import ru.kslacker.banks.models.MoneyAmount;
 import ru.kslacker.banks.tools.extensions.StreamExtensions;
+import java.math.BigDecimal;
+import java.time.Period;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @ExtensionMethod(StreamExtensions.class)
 public class AccountTypeManagerImpl implements AccountTypeManager {
@@ -27,8 +22,12 @@ public class AccountTypeManagerImpl implements AccountTypeManager {
 	private final List<AccountType> types;
 	private MoneyAmount suspiciousAccountsOperationsLimit;
 
-	public AccountTypeManagerImpl(MoneyAmount suspiciousOperationsLimit)
-	{
+	/**
+	 * Constructor of basic AccountTypeManager implementation
+	 *
+	 * @param suspiciousOperationsLimit limit on transactions of suspicious accounts
+	 */
+	public AccountTypeManagerImpl(MoneyAmount suspiciousOperationsLimit) {
 		this.types = new ArrayList<>();
 		this.suspiciousAccountsOperationsLimit = suspiciousOperationsLimit;
 	}
@@ -41,8 +40,7 @@ public class AccountTypeManagerImpl implements AccountTypeManager {
 	@Override
 	public void setSuspiciousOperationsLimit(MoneyAmount limit) {
 		this.suspiciousAccountsOperationsLimit = limit;
-		for (AccountType accountType : types)
-		{
+		for (AccountType accountType : types) {
 			if (accountType instanceof SuspiciousLimitingAccountType type) {
 				type.setSuspiciousAccountsOperationsLimit(limit);
 			}
@@ -54,15 +52,17 @@ public class AccountTypeManagerImpl implements AccountTypeManager {
 		BigDecimal interestOnBalance,
 		Period interestCalculationPeriod) {
 
-		DebitAccountType type = new DebitAccountTypeImpl(interestOnBalance, interestCalculationPeriod, suspiciousAccountsOperationsLimit);
+		DebitAccountType type = new DebitAccountTypeImpl(
+			interestOnBalance,
+			interestCalculationPeriod,
+			suspiciousAccountsOperationsLimit);
 		types.add(type);
 
 		return type;
 	}
 
 	@Override
-	public void setInterestOnBalance(UUID debitTypeId, BigDecimal interestOnBalance)
-	{
+	public void setInterestOnBalance(UUID debitTypeId, BigDecimal interestOnBalance) {
 		if (interestOnBalance.compareTo(BigDecimal.ZERO) < 0) {
 			throw new IllegalArgumentException();
 		}
@@ -81,7 +81,10 @@ public class AccountTypeManagerImpl implements AccountTypeManager {
 
 	@Override
 	public CreditAccountType createCreditAccountType(MoneyAmount debtLimit, MoneyAmount charge) {
-		CreditAccountType type = new CreditAccountTypeImpl(debtLimit, charge, suspiciousAccountsOperationsLimit);
+		CreditAccountType type = new CreditAccountTypeImpl(
+			debtLimit,
+			charge,
+			suspiciousAccountsOperationsLimit);
 		types.add(type);
 
 		return type;

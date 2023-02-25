@@ -13,6 +13,12 @@ public class InterestOnBalancePolicy {
 
 	private final Collection<InterestOnBalanceLayer> layers;
 
+	/**
+	 * Constructor of InterestOnBalancePolicy - set of rules to get interest on balance rate
+	 * corresponding to initial balance
+	 *
+	 * @param layers
+	 */
 	public InterestOnBalancePolicy(Collection<InterestOnBalanceLayer> layers) {
 		if (haveIntersections(layers)) {
 			throw InterestOnBalancePolicyException.layersWithIntersectionsByInitialBalance();
@@ -24,6 +30,7 @@ public class InterestOnBalancePolicy {
 	}
 
 	private static boolean haveIntersections(Collection<InterestOnBalanceLayer> layers) {
-		return layers.stream().distinctBy(InterestOnBalanceLayer::requiredInitialBalance).count() != layers.size();
+		return layers.stream().distinctBy(InterestOnBalanceLayer::requiredInitialBalance).count()
+			!= layers.size();
 	}
 }

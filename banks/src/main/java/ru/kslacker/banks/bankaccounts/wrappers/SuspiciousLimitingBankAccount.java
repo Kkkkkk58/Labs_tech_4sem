@@ -12,6 +12,11 @@ public class SuspiciousLimitingBankAccount extends BankAccountWrapper {
 	private final BankAccount wrapped;
 	private final SuspiciousLimitingAccountType type;
 
+	/**
+	 * Bank account that has limits on operations with suspicious accounts
+	 *
+	 * @param wrapped wrapped bank account
+	 */
 	public SuspiciousLimitingBankAccount(BankAccount wrapped) {
 		super(wrapped);
 
@@ -46,6 +51,7 @@ public class SuspiciousLimitingBankAccount extends BankAccountWrapper {
 	}
 
 	private boolean isSuspiciousAccountLimitExceeded(MoneyAmount moneyAmount) {
-		return wrapped.isSuspicious() && moneyAmount.compareTo(type.getSuspiciousAccountsOperationsLimit()) > 0 ;
+		return wrapped.isSuspicious()
+			&& moneyAmount.compareTo(type.getSuspiciousAccountsOperationsLimit()) > 0;
 	}
 }

@@ -1,9 +1,5 @@
 package ru.kslacker.banks.accounttypemanager.api;
 
-import java.math.BigDecimal;
-
-import java.time.Period;
-import java.util.UUID;
 import ru.kslacker.banks.bankaccounts.accounttypes.api.AccountType;
 import ru.kslacker.banks.bankaccounts.accounttypes.api.CreditAccountType;
 import ru.kslacker.banks.bankaccounts.accounttypes.api.DebitAccountType;
@@ -11,10 +7,19 @@ import ru.kslacker.banks.bankaccounts.accounttypes.api.DepositAccountType;
 import ru.kslacker.banks.models.InterestOnBalancePolicy;
 import ru.kslacker.banks.models.MoneyAmount;
 
+import java.math.BigDecimal;
+import java.time.Period;
+import java.util.UUID;
+
 public abstract class AccountTypeManagerWrapper implements AccountTypeManager {
 
 	private final AccountTypeManager wrapped;
 
+	/**
+	 * AccountTypeManagerWrapper constructor
+	 *
+	 * @param wrapped wrapped type manager
+	 */
 	public AccountTypeManagerWrapper(AccountTypeManager wrapped) {
 		this.wrapped = wrapped;
 	}
@@ -40,8 +45,10 @@ public abstract class AccountTypeManagerWrapper implements AccountTypeManager {
 	}
 
 	@Override
-	public DebitAccountType createDebitAccountType(BigDecimal interestOnBalance,
+	public DebitAccountType createDebitAccountType(
+		BigDecimal interestOnBalance,
 		Period interestCalculationPeriod) {
+
 		return wrapped.createDebitAccountType(interestOnBalance, interestCalculationPeriod);
 	}
 
@@ -51,9 +58,15 @@ public abstract class AccountTypeManagerWrapper implements AccountTypeManager {
 	}
 
 	@Override
-	public DepositAccountType createDepositAccountType(Period depositTerm,
-		InterestOnBalancePolicy interestOnBalancePolicy, Period interestCalculationPeriod) {
-		return wrapped.createDepositAccountType(depositTerm, interestOnBalancePolicy, interestCalculationPeriod);
+	public DepositAccountType createDepositAccountType(
+		Period depositTerm,
+		InterestOnBalancePolicy interestOnBalancePolicy,
+		Period interestCalculationPeriod) {
+
+		return wrapped.createDepositAccountType(
+			depositTerm,
+			interestOnBalancePolicy,
+			interestCalculationPeriod);
 	}
 
 	@Override
@@ -80,4 +93,5 @@ public abstract class AccountTypeManagerWrapper implements AccountTypeManager {
 	public void setSuspiciousOperationsLimit(MoneyAmount limit) {
 		wrapped.setSuspiciousOperationsLimit(limit);
 	}
+
 }

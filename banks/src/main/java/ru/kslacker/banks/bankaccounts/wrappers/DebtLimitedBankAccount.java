@@ -13,6 +13,11 @@ public class DebtLimitedBankAccount extends BankAccountWrapper {
 
 	private final DebtLimitedAccountType type;
 
+	/**
+	 * Constructor of bank account that has debt limit
+	 *
+	 * @param wrapped wrapped bank account
+	 */
 	public DebtLimitedBankAccount(BankAccount wrapped) {
 		super(wrapped);
 
@@ -24,8 +29,7 @@ public class DebtLimitedBankAccount extends BankAccountWrapper {
 	}
 
 	@Override
-	public MoneyAmount withdraw(Transaction transaction)
-	{
+	public MoneyAmount withdraw(Transaction transaction) {
 		MoneyAmount moneyAmount = transaction.getInformation().getOperatedAmount();
 		MoneyAmount debt = estimateNewDebtValue(moneyAmount);
 
@@ -36,15 +40,11 @@ public class DebtLimitedBankAccount extends BankAccountWrapper {
 		return super.withdraw(transaction);
 	}
 
-	private MoneyAmount estimateNewDebtValue(MoneyAmount moneyAmount)
-	{
+	private MoneyAmount estimateNewDebtValue(MoneyAmount moneyAmount) {
 		var debt = new MoneyAmount(BigDecimal.ZERO, type.getDebtLimit().currency());
-		if (!Objects.equals(getDebt().value(), BigDecimal.ZERO))
-		{
+		if (!Objects.equals(getDebt().value(), BigDecimal.ZERO)) {
 			debt = getDebt().add(moneyAmount);
-		}
-		else if (getBalance().compareTo(moneyAmount) < 0)
-		{
+		} else if (getBalance().compareTo(moneyAmount) < 0) {
 			debt = moneyAmount.subtract(getBalance());
 		}
 

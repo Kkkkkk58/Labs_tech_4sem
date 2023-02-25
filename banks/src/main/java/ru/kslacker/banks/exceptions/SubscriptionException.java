@@ -8,13 +8,24 @@ public class SubscriptionException extends BanksDomainException {
 		super(message);
 	}
 
-	public static SubscriptionException alreadySubscribed(UUID subscriberId)
-	{
-		return new SubscriptionException("Subscriber " + subscriberId + " is already subscribed to notifications");
+	/**
+	 * Exception thrown when the subscriber with given id is already subscribed
+	 *
+	 * @param subscriberId subscriber's id
+	 * @return exception with corresponding message
+	 */
+	public static SubscriptionException alreadySubscribed(UUID subscriberId) {
+		return new SubscriptionException(
+			"Subscriber " + subscriberId + " is already subscribed to notifications");
 	}
 
-	public static SubscriptionException subscriberNotFound(UUID subscriberId)
-	{
+	/**
+	 * Exception thrown when subscriber with given id wasn't found
+	 *
+	 * @param subscriberId subscriber's id
+	 * @return exception with corresponding message
+	 */
+	public static SubscriptionException subscriberNotFound(UUID subscriberId) {
 		return new SubscriptionException("Subscriber " + subscriberId + " was not found");
 	}
 }

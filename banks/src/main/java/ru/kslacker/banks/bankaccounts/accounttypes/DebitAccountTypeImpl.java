@@ -1,17 +1,24 @@
 package ru.kslacker.banks.bankaccounts.accounttypes;
 
-import java.math.BigDecimal;
-import java.time.Period;
-
 import ru.kslacker.banks.bankaccounts.accounttypes.api.DebitAccountType;
 import ru.kslacker.banks.bankaccounts.accounttypes.api.SuspiciousLimitingAccountTypeBase;
 import ru.kslacker.banks.models.MoneyAmount;
+import java.math.BigDecimal;
+import java.time.Period;
 
-public class DebitAccountTypeImpl extends SuspiciousLimitingAccountTypeBase implements DebitAccountType {
+public class DebitAccountTypeImpl extends SuspiciousLimitingAccountTypeBase implements
+	DebitAccountType {
 
 	private BigDecimal interestPercent;
 	private Period interestCalculationPeriod;
 
+	/**
+	 * Constructor of basic implementation of debit account type
+	 *
+	 * @param interestPercent                   annual interest on balance percent
+	 * @param interestCalculationPeriod         period of interest calculation
+	 * @param suspiciousAccountsOperationsLimit limit on operations with suspicious accounts
+	 */
 	public DebitAccountTypeImpl(
 		BigDecimal interestPercent,
 		Period interestCalculationPeriod,
