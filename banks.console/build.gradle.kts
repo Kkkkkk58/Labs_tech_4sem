@@ -1,0 +1,39 @@
+plugins {
+    id("java")
+	id("application")
+	id("org.springframework.boot") version "3.0.3" apply false
+	id("io.spring.dependency-management") version "1.1.0"
+}
+
+
+group = "ru.kslacker"
+version = "1.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+	implementation(project(":banks"))
+	implementation("org.springframework.boot:spring-boot-starter")
+	compileOnly("org.projectlombok:lombok:1.18.26")
+	annotationProcessor("org.projectlombok:lombok:1.18.26")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+}
+
+application {
+	mainClass.set("ru.kslacker.banks.console.App")
+}
+
+dependencyManagement {
+	imports {
+		mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+	}
+}
+
+sourceSets["main"].resources.srcDir("src/resources")
+
+tasks.getByName<Test>("test") {
+    useJUnitPlatform()
+}
