@@ -1,5 +1,5 @@
 plugins {
-    id("java")
+    id("java-library")
 	id("org.hibernate.orm") version "6.2.0.CR3"
 	id("application")
 }
@@ -12,8 +12,7 @@ repositories {
 }
 
 dependencies {
-	implementation(project(":cats:data-access"))
-	implementation(project(":cats:service"))
+	api(project(":cats:service"))
 	implementation("org.projectlombok:lombok:1.18.22")
 	annotationProcessor("org.projectlombok:lombok:1.18.26")
 	testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")

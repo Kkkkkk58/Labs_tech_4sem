@@ -8,3 +8,5 @@ include("cats:data-access")
 findProject(":cats:data-access")?.name = "data-access"
 include("cats:presentation")
 findProject(":cats:presentation")?.name = "presentation"
+include("cats:common")
+findProject(":cats:common")?.name = "common"

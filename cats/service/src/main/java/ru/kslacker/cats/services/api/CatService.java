@@ -1,19 +1,25 @@
 package ru.kslacker.cats.services.api;
 
-import ru.kslacker.cats.dataaccess.entities.Cat;
-import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import ru.kslacker.cats.dataaccess.models.Breed;
-import ru.kslacker.cats.dataaccess.models.FurColor;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
+import ru.kslacker.cats.common.models.FurColor;
+import ru.kslacker.cats.dataaccess.entities.Cat;
+import ru.kslacker.cats.services.dto.CatDto;
 
 public interface CatService {
-	Cat addCat(Cat cat);
-	void removeCat(Cat cat);
-	Cat getCat(Long id);
-	void updateCat(Cat cat);
-	List<Cat> getByOwner(CatOwner owner);
-	List<Cat> getByColor(FurColor color);
-	List<Cat> getByBreed(Breed breed);
-	List<Cat> getBy(Predicate<Cat> condition);
+
+	CatDto create(String name, LocalDate dateOfBirth, String breed, FurColor furColor, Long catOwnerId);
+	void remove(Long id);
+	CatDto get(Long id);
+	List<CatDto> getByName(String name);
+	List<CatDto> getByDateOfBirth(LocalDate dateOfBirth);
+	List<CatDto> getByOwner(Long ownerId);
+	List<CatDto> getByColor(FurColor color);
+	List<CatDto> getByBreed(String breed);
+	List<CatDto> getBy(Predicate<Cat> condition);
+	List<CatDto> getBy(Map<String, Object> paramSet);
+	void makeFriends(Long cat1Id, Long cat2Id);
+	void removeFriends(Long cat1Id, Long cat2Id);
 }

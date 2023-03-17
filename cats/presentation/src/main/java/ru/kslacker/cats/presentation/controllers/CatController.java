@@ -1,16 +1,11 @@
 package ru.kslacker.cats.presentation.controllers;
 
 import java.util.List;
-import lombok.experimental.ExtensionMethod;
-import ru.kslacker.cats.dataaccess.entities.Cat;
-import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import ru.kslacker.cats.dataaccess.models.Breed;
-import ru.kslacker.cats.dataaccess.models.FurColor;
-import ru.kslacker.cats.presentation.dto.CatDto;
-import ru.kslacker.cats.presentation.utils.mapping.CatExtensions;
+import ru.kslacker.cats.common.models.FurColor;
+import ru.kslacker.cats.presentation.models.cats.CreateCatModel;
 import ru.kslacker.cats.services.api.CatService;
+import ru.kslacker.cats.services.dto.CatDto;
 
-@ExtensionMethod(CatExtensions.class)
 public class CatController {
 
 	private final CatService service;
@@ -19,32 +14,28 @@ public class CatController {
 		this.service = service;
 	}
 
-	public CatDto create(Cat cat) {
+	public CatDto create(CreateCatModel cat) {
 		// TODO WTF
-		return service.addCat(cat).asDto();
+		return service.create(cat.name(), cat.dateOfBirth(), cat.breed(), cat.furColor(), cat.ownerId());
 	}
 
-	public void delete(Cat cat) {
-		service.removeCat(cat);
+	public void delete(Long id) {
+		service.remove(id);
 	}
 
 	public CatDto getCat(Long id) {
-		return service.getCat(id).asDto();
+		return service.get(id);
 	}
 
-	public List<CatDto> getByOwner(CatOwner owner) {
-		return service.getByOwner(owner).stream().map(c -> c.asDto()).toList();
+	public List<CatDto> getByOwner(Long ownerId) {
+		return service.getByOwner(ownerId);
 	}
 
 	public List<CatDto> getByColor(FurColor color) {
-		return service.getByColor(color).stream().map(c -> c.asDto()).toList();
+		return service.getByColor(color);
 	}
 
-	public List<CatDto> getByBreed(Breed breed) {
-		return service.getByBreed(breed).stream().map(c -> c.asDto()).toList();
-	}
-
-	public void update(Cat cat) {
-		service.updateCat(cat);
+	public List<CatDto> getByBreed(String breed) {
+		return service.getByBreed(breed);
 	}
 }

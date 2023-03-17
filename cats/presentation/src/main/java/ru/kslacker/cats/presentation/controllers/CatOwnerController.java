@@ -1,10 +1,10 @@
 package ru.kslacker.cats.presentation.controllers;
 
 import lombok.experimental.ExtensionMethod;
-import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import ru.kslacker.cats.presentation.dto.CatOwnerDto;
-import ru.kslacker.cats.presentation.utils.mapping.CatOwnerExtensions;
+import ru.kslacker.cats.presentation.models.catowners.CreateCatOwnerModel;
 import ru.kslacker.cats.services.api.CatOwnerService;
+import ru.kslacker.cats.services.dto.CatOwnerDto;
+import ru.kslacker.cats.services.mapping.CatOwnerExtensions;
 
 @ExtensionMethod(CatOwnerExtensions.class)
 public class CatOwnerController {
@@ -15,19 +15,15 @@ public class CatOwnerController {
 		this.service = service;
 	}
 
-	public CatOwnerDto create(CatOwner owner) {
-		return service.addOwner(owner).asDto();
+	public CatOwnerDto create(CreateCatOwnerModel owner) {
+		return service.create(owner.name(), owner.dateOfBirth());
 	}
 
 	public CatOwnerDto get(Long id) {
-		return service.getOwner(id).asDto();
+		return service.get(id);
 	}
 
-	public void update(CatOwner owner) {
-		service.updateOwner(owner);
-	}
-
-	public void delete(CatOwner owner) {
-		service.removeOwner(owner);
+	public void delete(Long id) {
+		service.remove(id);
 	}
 }

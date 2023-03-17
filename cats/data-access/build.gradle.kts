@@ -1,5 +1,5 @@
 plugins {
-    id("java")
+    id("java-library")
 	id("org.hibernate.orm") version "6.2.0.CR3"
 }
 
@@ -11,6 +11,7 @@ repositories {
 }
 
 dependencies {
+	api(project(":cats:common"))
 	implementation("org.postgresql:postgresql:42.2.27")
 	implementation("org.projectlombok:lombok:1.18.22")
 	annotationProcessor("org.projectlombok:lombok:1.18.26")
