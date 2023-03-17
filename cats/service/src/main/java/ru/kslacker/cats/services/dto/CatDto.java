@@ -5,8 +5,7 @@ import java.util.List;
 import lombok.Builder;
 import ru.kslacker.cats.common.models.FurColor;
 
-// TODO Builder
 @Builder
-public record CatDto(Long id, String name, LocalDate dateOfBirth, String breed, FurColor furColor, CatOwnerDto owner, List<CatDto> friends) {
+public record CatDto(Long id, String name, LocalDate dateOfBirth, String breed, FurColor furColor, CatOwnerDto owner, List<Long> friends) {
 
 }

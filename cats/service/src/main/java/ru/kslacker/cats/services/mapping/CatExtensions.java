@@ -15,7 +15,7 @@ public class CatExtensions {
 			.breed(cat.getBreed())
 			.furColor(cat.getFurColor())
 			.owner(CatOwnerExtensions.asDto(cat.getOwner()))
-			.friends(cat.getFriends().stream().map(CatExtensions::asDto).toList())
+			.friends(cat.getFriends().stream().map(Cat::getId).toList())
 			.build();
 	}
 }

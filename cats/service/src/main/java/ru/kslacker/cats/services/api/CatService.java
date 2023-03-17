@@ -21,5 +21,5 @@ public interface CatService {
 	List<CatDto> getBy(Predicate<Cat> condition);
 	List<CatDto> getBy(Map<String, Object> paramSet);
 	void makeFriends(Long cat1Id, Long cat2Id);
-	void removeFriends(Long cat1Id, Long cat2Id);
+	void removeFriend(Long cat1Id, Long cat2Id);
 }

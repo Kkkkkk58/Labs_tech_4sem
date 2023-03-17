@@ -11,6 +11,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import lombok.AccessLevel;
@@ -44,6 +45,10 @@ public class CatOwner {
 		this.name = name;
 		this.dateOfBirth = dateOfBirth;
 		this.cats = new ArrayList<>();
+	}
+
+	public List<Cat> getCats() {
+		return Collections.unmodifiableList(cats);
 	}
 
 	public void addCat(Cat cat) {

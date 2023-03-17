@@ -51,7 +51,7 @@ public class CatServiceImpl implements CatService {
 			return catDto;
 		} catch (PersistenceException e) {
 			transaction.rollback();
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -59,15 +59,21 @@ public class CatServiceImpl implements CatService {
 	public void remove(Long id) {
 
 		EntityTransaction transaction = entityManager.getTransaction();
-		try {
+		//try {
 			transaction.begin();
 			Cat cat = catDao.getById(id);
 			catDao.delete(cat);
+			List<Cat> friends = cat.getFriends().stream().toList();
+			for (Cat friend : friends) {
+				friend.removeFriend(cat);
+			}
+
 			transaction.commit();
-		} catch (PersistenceException e) {
-			transaction.rollback();
-			throw new RuntimeException();
-		}
+//		} catch (PersistenceException e) {
+//			transaction.rollback();
+//			System.out.println(Arrays.toString(e.getStackTrace()));
+//			throw new RuntimeException(e);
+//		}
 	}
 
 	@Override
@@ -123,12 +129,12 @@ public class CatServiceImpl implements CatService {
 			transaction.commit();
 		} catch (PersistenceException e) {
 			transaction.rollback();
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
-	public void removeFriends(Long cat1Id, Long cat2Id) {
+	public void removeFriend(Long cat1Id, Long cat2Id) {
 		EntityTransaction transaction = entityManager.getTransaction();
 		try {
 			transaction.begin();
@@ -140,7 +146,7 @@ public class CatServiceImpl implements CatService {
 			transaction.commit();
 		} catch (PersistenceException e) {
 			transaction.rollback();
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 }

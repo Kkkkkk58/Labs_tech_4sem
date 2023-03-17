@@ -1,6 +1,5 @@
 package ru.kslacker.cats.dataaccess.entities;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -55,7 +54,7 @@ public class Cat {
 	@JoinColumn(name = "owner_id")
 	private CatOwner owner;
 
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "cat_friends",
 		joinColumns = @JoinColumn(name = "cat_id"),
 		inverseJoinColumns = @JoinColumn(name = "friend_id"))
@@ -67,6 +66,7 @@ public class Cat {
 		this.breed = breed;
 		this.furColor = furColor;
 		this.owner = owner;
+		this.owner.addCat(this);
 		this.friends = new ArrayList<>();
 	}
 
@@ -84,14 +84,13 @@ public class Cat {
 		}
 
 		friends.add(cat);
-		cat.addFriend(this);
+		cat.friends.add(this);
 	}
 
 	public void removeFriend(Cat cat) {
-		if (!friends.remove(cat)) {
-			throw new RuntimeException();
+		if (!friends.remove(cat) | !cat.friends.remove(this)) {
+			throw new RuntimeException("Aboba");
 		}
-		cat.removeFriend(this);
 	}
 
 	@Override

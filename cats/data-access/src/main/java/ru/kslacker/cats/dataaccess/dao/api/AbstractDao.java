@@ -66,6 +66,6 @@ public abstract class AbstractDao<T, PK extends Serializable> implements Dao<T, 
 	private String getQlString(Map<String, Object> paramSet) {
 
 		List<String> queryParts = paramSet.keySet().stream().map(key -> "c." + key + " = :" + key).toList();
-		return "SELECT c FROM " + clazz.getSimpleName() + "c WHERE " + String.join(" AND ", queryParts);
+		return "SELECT c FROM " + clazz.getSimpleName() + " c WHERE " + String.join(" AND ", queryParts);
 	}
 }
