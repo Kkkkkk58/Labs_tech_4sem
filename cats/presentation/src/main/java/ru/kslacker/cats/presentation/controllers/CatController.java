@@ -1,15 +1,16 @@
 package ru.kslacker.cats.presentation.controllers;
 
-import java.lang.reflect.Field;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.presentation.models.cats.CreateCatModel;
 import ru.kslacker.cats.presentation.models.cats.GetCatByParamsModel;
 import ru.kslacker.cats.services.api.CatService;
 import ru.kslacker.cats.services.dto.CatDto;
+
+import java.lang.reflect.Field;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CatController {
 
@@ -20,7 +21,8 @@ public class CatController {
 	}
 
 	public CatDto create(CreateCatModel cat) {
-		return service.create(cat.name(), cat.dateOfBirth(), cat.breed(), cat.furColor(), cat.ownerId());
+		return service.create(cat.name(), cat.dateOfBirth(), cat.breed(), cat.furColor(),
+			cat.ownerId());
 	}
 
 	public void delete(Long id) {
@@ -30,6 +32,7 @@ public class CatController {
 	public CatDto get(Long id) {
 		return service.get(id);
 	}
+
 	public List<CatDto> getByName(String name) {
 		return service.getByName(name);
 	}
@@ -51,7 +54,6 @@ public class CatController {
 	}
 
 	public List<CatDto> getBy(GetCatByParamsModel params) {
-		// TODO reduce duplication
 		Map<String, Object> paramsMap = new HashMap<>();
 
 		for (Field field : params.getClass().getDeclaredFields()) {
@@ -62,7 +64,6 @@ public class CatController {
 					paramsMap.put(field.getName(), value);
 				}
 			} catch (IllegalAccessException e) {
-				// TODO exception
 				throw new RuntimeException(e);
 			}
 		}

@@ -3,10 +3,7 @@ package ru.kslacker.cats.services;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.PersistenceException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
+import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
 import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.dataaccess.dao.api.CatDao;
@@ -17,16 +14,20 @@ import ru.kslacker.cats.services.api.CatService;
 import ru.kslacker.cats.services.dto.CatDto;
 import ru.kslacker.cats.services.mapping.CatExtensions;
 import ru.kslacker.cats.services.mapping.StreamExtensions;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
 
-// TODO Transactions to services
-@ExtensionMethod({ CatExtensions.class, StreamExtensions.class })
+@ExtensionMethod({CatExtensions.class, StreamExtensions.class})
 public class CatServiceImpl implements CatService {
 
 	private final EntityManager entityManager;
 	private final CatDao catDao;
 	private final CatOwnerDao catOwnerDao;
 
-	public CatServiceImpl(EntityManager entityManager, CatDao catDao, CatOwnerDao catOwnerDao) {
+	public CatServiceImpl(@NonNull EntityManager entityManager, @NonNull CatDao catDao,
+		@NonNull CatOwnerDao catOwnerDao) {
 
 		this.entityManager = entityManager;
 		this.catDao = catDao;
@@ -35,11 +36,11 @@ public class CatServiceImpl implements CatService {
 
 	@Override
 	public CatDto create(
-		String name,
-		LocalDate dateOfBirth,
-		String breed,
-		FurColor furColor,
-		Long catOwnerId) {
+		@NonNull String name,
+		@NonNull LocalDate dateOfBirth,
+		@NonNull String breed,
+		@NonNull FurColor furColor,
+		@NonNull Long catOwnerId) {
 
 		EntityTransaction transaction = entityManager.getTransaction();
 		try {
@@ -51,43 +52,43 @@ public class CatServiceImpl implements CatService {
 			return catDto;
 		} catch (PersistenceException e) {
 			transaction.rollback();
-			throw new RuntimeException(e);
+			throw e;
 		}
 	}
 
 	@Override
-	public void remove(Long id) {
+	public void remove(@NonNull Long id) {
 
 		EntityTransaction transaction = entityManager.getTransaction();
-		//try {
+		try {
 			transaction.begin();
 			Cat cat = catDao.getById(id);
-			catDao.delete(cat);
 			List<Cat> friends = cat.getFriends().stream().toList();
 			for (Cat friend : friends) {
 				friend.removeFriend(cat);
 			}
+			cat.getOwner().removeCat(cat);
 
+			catDao.delete(cat);
 			transaction.commit();
-//		} catch (PersistenceException e) {
-//			transaction.rollback();
-//			System.out.println(Arrays.toString(e.getStackTrace()));
-//			throw new RuntimeException(e);
-//		}
+		} catch (PersistenceException e) {
+			transaction.rollback();
+			throw e;
+		}
 	}
 
 	@Override
-	public CatDto get(Long id) {
+	public CatDto get(@NonNull Long id) {
 		return catDao.getById(id).asDto();
 	}
 
 	@Override
-	public List<CatDto> getByName(String name) {
+	public List<CatDto> getByName(@NonNull String name) {
 		return catDao.getByName(name).stream().asCatDto().toList();
 	}
 
 	@Override
-	public List<CatDto> getByDateOfBirth(LocalDate dateOfBirth) {
+	public List<CatDto> getByDateOfBirth(@NonNull LocalDate dateOfBirth) {
 		return catDao.getByDateOfBirth(dateOfBirth).stream().asCatDto().toList();
 	}
 
@@ -97,27 +98,28 @@ public class CatServiceImpl implements CatService {
 	}
 
 	@Override
-	public List<CatDto> getByColor(FurColor color) {
+	public List<CatDto> getByColor(@NonNull FurColor color) {
 		return catDao.getByColor(color).stream().asCatDto().toList();
 	}
 
 	@Override
-	public List<CatDto> getByBreed(String breed) {
+	public List<CatDto> getByBreed(@NonNull String breed) {
 		return catDao.getByBreed(breed).stream().asCatDto().toList();
 	}
 
 	@Override
-	public List<CatDto> getBy(Predicate<Cat> condition) {
+	public List<CatDto> getBy(@NonNull Predicate<Cat> condition) {
 		return catDao.getAll().stream().filter(condition).asCatDto().toList();
 	}
 
 	@Override
-	public List<CatDto> getBy(Map<String, Object> paramSet) {
+	public List<CatDto> getBy(@NonNull Map<String, Object> paramSet) {
 		return catDao.getByParamSet(paramSet).stream().asCatDto().toList();
 	}
 
 	@Override
-	public void makeFriends(Long cat1Id, Long cat2Id) {
+	public void makeFriends(@NonNull Long cat1Id, @NonNull Long cat2Id) {
+
 		EntityTransaction transaction = entityManager.getTransaction();
 		try {
 			transaction.begin();
@@ -129,12 +131,13 @@ public class CatServiceImpl implements CatService {
 			transaction.commit();
 		} catch (PersistenceException e) {
 			transaction.rollback();
-			throw new RuntimeException(e);
+			throw e;
 		}
 	}
 
 	@Override
-	public void removeFriend(Long cat1Id, Long cat2Id) {
+	public void removeFriend(@NonNull Long cat1Id, @NonNull Long cat2Id) {
+
 		EntityTransaction transaction = entityManager.getTransaction();
 		try {
 			transaction.begin();
@@ -146,7 +149,7 @@ public class CatServiceImpl implements CatService {
 			transaction.commit();
 		} catch (PersistenceException e) {
 			transaction.rollback();
-			throw new RuntimeException(e);
+			throw e;
 		}
 	}
 }

@@ -2,11 +2,11 @@ package ru.kslacker.cats.presentation;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Persistence;
-import java.time.LocalDate;
-import java.util.List;
 import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.dataaccess.dao.CatDaoImpl;
 import ru.kslacker.cats.dataaccess.dao.CatOwnerDaoImpl;
+import ru.kslacker.cats.dataaccess.dao.api.CatDao;
+import ru.kslacker.cats.dataaccess.dao.api.CatOwnerDao;
 import ru.kslacker.cats.presentation.controllers.CatController;
 import ru.kslacker.cats.presentation.controllers.CatOwnerController;
 import ru.kslacker.cats.presentation.models.catowners.CreateCatOwnerModel;
@@ -17,14 +17,17 @@ import ru.kslacker.cats.services.CatServiceImpl;
 import ru.kslacker.cats.services.dto.CatDto;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
 
+import java.time.LocalDate;
+import java.util.List;
+
 public class App {
 
 	public static void main(String[] args) {
 		System.out.println("Cats");
 		EntityManager em = Persistence.createEntityManagerFactory("cats")
 			.createEntityManager();
-		CatDaoImpl catDao = new CatDaoImpl(em);
-		CatOwnerDaoImpl catOwnerDao = new CatOwnerDaoImpl(em);
+		CatDao catDao = new CatDaoImpl(em);
+		CatOwnerDao catOwnerDao = new CatOwnerDaoImpl(em);
 		CatController c = new CatController(new CatServiceImpl(em, catDao, catOwnerDao));
 		CatOwnerController cc = new CatOwnerController(new CatOwnerServiceImpl(em, catOwnerDao));
 
@@ -38,8 +41,8 @@ public class App {
 		CatOwnerDto owner = cc.get(owner1.id());
 		List<CatDto> cats = c.getByBreed("Abyss");
 
-		GetCatByParamsModel model = new GetCatByParamsModel(null, null, null, "Abyss", FurColor.GINGER, null);
+		GetCatByParamsModel model = new GetCatByParamsModel(null, null, null, "Abyss",
+			FurColor.GINGER, null);
 		List<CatDto> result = c.getBy(model);
-
 	}
 }

@@ -12,6 +12,7 @@ public class CatOwnerExtensions {
 		return CatOwnerDto.builder()
 			.id(catOwner.getId())
 			.name(catOwner.getName())
+			.dateOfBirth(catOwner.getDateOfBirth())
 			.cats(catOwner.getCats().stream().map(Cat::getId).toList())
 			.build();
 	}

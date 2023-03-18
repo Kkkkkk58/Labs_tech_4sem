@@ -6,6 +6,7 @@ import ru.kslacker.cats.presentation.models.catowners.GetCatOwnerByParamsModel;
 import ru.kslacker.cats.services.api.CatOwnerService;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
 import ru.kslacker.cats.services.mapping.CatOwnerExtensions;
+
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -52,7 +53,6 @@ public class CatOwnerController {
 					paramsMap.put(field.getName(), value);
 				}
 			} catch (IllegalAccessException e) {
-				// TODO exception
 				throw new RuntimeException(e);
 			}
 		}

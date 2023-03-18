@@ -5,6 +5,7 @@ import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.dataaccess.dao.api.AbstractDao;
 import ru.kslacker.cats.dataaccess.dao.api.CatDao;
 import ru.kslacker.cats.dataaccess.entities.Cat;
+
 import java.time.LocalDate;
 import java.util.List;
 

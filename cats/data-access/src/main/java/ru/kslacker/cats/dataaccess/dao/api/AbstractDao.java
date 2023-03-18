@@ -3,6 +3,7 @@ package ru.kslacker.cats.dataaccess.dao.api;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,9 @@ public abstract class AbstractDao<T, PK extends Serializable> implements Dao<T, 
 	@Override
 	public List<T> getByParam(String paramName, Object value) {
 		return entityManager
-			.createQuery("SELECT c FROM " + clazz.getSimpleName() + " c WHERE c." + paramName + " = :param", clazz)
+			.createQuery(
+				"SELECT c FROM " + clazz.getSimpleName() + " c WHERE c." + paramName + " = :param",
+				clazz)
 			.setParameter("param", value)
 			.getResultList();
 	}
@@ -65,7 +68,9 @@ public abstract class AbstractDao<T, PK extends Serializable> implements Dao<T, 
 
 	private String getQlString(Map<String, Object> paramSet) {
 
-		List<String> queryParts = paramSet.keySet().stream().map(key -> "c." + key + " = :" + key).toList();
-		return "SELECT c FROM " + clazz.getSimpleName() + " c WHERE " + String.join(" AND ", queryParts);
+		List<String> queryParts = paramSet.keySet().stream().map(key -> "c." + key + " = :" + key)
+			.toList();
+		return "SELECT c FROM " + clazz.getSimpleName() + " c WHERE " + String.join(" AND ",
+			queryParts);
 	}
 }
