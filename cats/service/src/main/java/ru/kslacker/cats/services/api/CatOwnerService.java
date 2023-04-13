@@ -12,13 +12,9 @@ public interface CatOwnerService {
 
 	CatOwnerDto create(String name, LocalDate dateOfBirth);
 
-	void remove(Long id);
+	void delete(Long id);
 
 	CatOwnerDto get(Long id);
-
-	List<CatOwnerDto> getByName(String name);
-
-	List<CatOwnerDto> getByDateOfBirth(LocalDate dateOfBirth);
 
 	List<CatOwnerDto> getBy(Predicate<CatOwner> condition);
 

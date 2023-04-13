@@ -6,7 +6,7 @@ import ru.kslacker.cats.dataaccess.entities.CatOwner;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
 
 @UtilityClass
-public class CatOwnerExtensions {
+public class CatOwnerMapping {
 
 	public static CatOwnerDto asDto(CatOwner catOwner) {
 		return CatOwnerDto.builder()

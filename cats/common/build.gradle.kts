@@ -2,8 +2,8 @@ plugins {
     id("java")
 }
 
-group = "ru.kslacker"
-version = "unspecified"
+group = "ru.kslacker.cats"
+version = "1.0.0-SNAPSHOT"
 
 repositories {
     mavenCentral()

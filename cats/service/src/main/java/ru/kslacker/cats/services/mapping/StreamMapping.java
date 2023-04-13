@@ -8,13 +8,13 @@ import ru.kslacker.cats.services.dto.CatOwnerDto;
 import java.util.stream.Stream;
 
 @UtilityClass
-public class StreamExtensions {
+public class StreamMapping {
 
 	public static Stream<CatDto> asCatDto(Stream<Cat> cats) {
-		return cats.map(CatExtensions::asDto);
+		return cats.map(CatMapping::asDto);
 	}
 
 	public static Stream<CatOwnerDto> asCatOwnerDto(Stream<CatOwner> catOwners) {
-		return catOwners.map(CatOwnerExtensions::asDto);
+		return catOwners.map(CatOwnerMapping::asDto);
 	}
 }

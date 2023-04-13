@@ -5,7 +5,7 @@ import ru.kslacker.cats.dataaccess.entities.Cat;
 import ru.kslacker.cats.services.dto.CatDto;
 
 @UtilityClass
-public class CatExtensions {
+public class CatMapping {
 
 	public static CatDto asDto(Cat cat) {
 		return CatDto.builder()
@@ -14,7 +14,7 @@ public class CatExtensions {
 			.dateOfBirth(cat.getDateOfBirth())
 			.breed(cat.getBreed())
 			.furColor(cat.getFurColor())
-			.owner(CatOwnerExtensions.asDto(cat.getOwner()))
+			.ownerId(cat.getOwner().getId())
 			.friends(cat.getFriends().stream().map(Cat::getId).toList())
 			.build();
 	}

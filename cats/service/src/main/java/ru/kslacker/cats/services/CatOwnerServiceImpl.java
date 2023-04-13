@@ -1,87 +1,70 @@
 package ru.kslacker.cats.services;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.PersistenceException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
-import ru.kslacker.cats.dataaccess.dao.api.CatOwnerDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
+import ru.kslacker.cats.dataaccess.repositories.api.CatOwnerRepository;
 import ru.kslacker.cats.services.api.CatOwnerService;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
-import ru.kslacker.cats.services.mapping.CatOwnerExtensions;
-import ru.kslacker.cats.services.mapping.StreamExtensions;
+import ru.kslacker.cats.services.mapping.CatOwnerMapping;
+import ru.kslacker.cats.services.mapping.StreamMapping;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 
-@ExtensionMethod({CatOwnerExtensions.class, StreamExtensions.class})
+@Service
+@Transactional(readOnly = true)
+@ExtensionMethod({CatOwnerMapping.class, StreamMapping.class})
 public class CatOwnerServiceImpl implements CatOwnerService {
 
-	private final EntityManager entityManager;
-	private final CatOwnerDao catOwnerDao;
+	private final Validator validator;
+	private final CatOwnerRepository catOwnerRepository;
 
-	public CatOwnerServiceImpl(@NonNull EntityManager entityManager,
-		@NonNull CatOwnerDao catOwnerDao) {
-		this.entityManager = entityManager;
-		this.catOwnerDao = catOwnerDao;
+	@Autowired
+	public CatOwnerServiceImpl(Validator validator, @NonNull CatOwnerRepository catOwnerRepository) {
+		this.validator = validator;
+		this.catOwnerRepository = catOwnerRepository;
 	}
 
 	@Override
+	@Transactional
 	public CatOwnerDto create(@NonNull String name, @NonNull LocalDate dateOfBirth) {
+		CatOwner owner = new CatOwner(name, dateOfBirth);
 
-		EntityTransaction transaction = entityManager.getTransaction();
-		try {
-			transaction.begin();
-			CatOwner owner = new CatOwner(name, dateOfBirth);
-			CatOwnerDto saved = catOwnerDao.save(owner).asDto();
-			transaction.commit();
-			return saved;
-		} catch (PersistenceException e) {
-			transaction.rollback();
-			throw e;
+		Set<ConstraintViolation<CatOwner>> violations = validator.validate(owner);
+		if (!violations.isEmpty()) {
+			throw new ConstraintViolationException(violations);
 		}
+		return catOwnerRepository.saveAndFlush(owner).asDto();
 	}
 
 	@Override
-	public void remove(@NonNull Long id) {
-
-		EntityTransaction transaction = entityManager.getTransaction();
-		try {
-			transaction.begin();
-			CatOwner owner = catOwnerDao.getById(id);
-			catOwnerDao.delete(owner);
-			transaction.commit();
-		} catch (PersistenceException e) {
-			transaction.rollback();
-			throw e;
-		}
-
+	@Transactional
+	public void delete(@NonNull Long id) {
+		CatOwner owner = catOwnerRepository.getEntityById(id);
+		catOwnerRepository.delete(owner);
 	}
 
 	@Override
 	public CatOwnerDto get(@NonNull Long id) {
-		return catOwnerDao.getById(id).asDto();
-	}
-
-	@Override
-	public List<CatOwnerDto> getByName(@NonNull String name) {
-		return catOwnerDao.getByName(name).stream().asCatOwnerDto().toList();
-	}
-
-	@Override
-	public List<CatOwnerDto> getByDateOfBirth(@NonNull LocalDate dateOfBirth) {
-		return catOwnerDao.getByDateOfBirth(dateOfBirth).stream().asCatOwnerDto().toList();
+		return catOwnerRepository.getEntityById(id).asDto();
 	}
 
 	@Override
 	public List<CatOwnerDto> getBy(@NonNull Predicate<CatOwner> condition) {
-		return catOwnerDao.getAll().stream().filter(condition).asCatOwnerDto().toList();
+		return catOwnerRepository.findAll().stream().filter(condition).asCatOwnerDto().toList();
 	}
 
 	@Override
 	public List<CatOwnerDto> getBy(@NonNull Map<String, Object> paramSet) {
-		return catOwnerDao.getByParamSet(paramSet).stream().asCatOwnerDto().toList();
+		return catOwnerRepository.getBy(paramSet).stream().asCatOwnerDto().toList();
 	}
 }

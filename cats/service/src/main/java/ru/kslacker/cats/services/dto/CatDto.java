@@ -6,6 +6,6 @@ import lombok.Builder;
 import ru.kslacker.cats.common.models.FurColor;
 
 @Builder
-public record CatDto(Long id, String name, LocalDate dateOfBirth, String breed, FurColor furColor, CatOwnerDto owner, List<Long> friends) {
+public record CatDto(Long id, String name, LocalDate dateOfBirth, String breed, FurColor furColor, Long ownerId, List<Long> friends) {
 
 }

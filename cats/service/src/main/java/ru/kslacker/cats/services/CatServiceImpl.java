@@ -1,40 +1,50 @@
 package ru.kslacker.cats.services;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.PersistenceException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
 import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.kslacker.cats.common.models.FurColor;
-import ru.kslacker.cats.dataaccess.dao.api.CatDao;
-import ru.kslacker.cats.dataaccess.dao.api.CatOwnerDao;
 import ru.kslacker.cats.dataaccess.entities.Cat;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
+import ru.kslacker.cats.dataaccess.repositories.api.CatOwnerRepository;
+import ru.kslacker.cats.dataaccess.repositories.api.CatRepository;
 import ru.kslacker.cats.services.api.CatService;
 import ru.kslacker.cats.services.dto.CatDto;
-import ru.kslacker.cats.services.mapping.CatExtensions;
-import ru.kslacker.cats.services.mapping.StreamExtensions;
+import ru.kslacker.cats.services.mapping.CatMapping;
+import ru.kslacker.cats.services.mapping.StreamMapping;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 
-@ExtensionMethod({CatExtensions.class, StreamExtensions.class})
+@Service
+@Transactional(readOnly = true)
+@ExtensionMethod({CatMapping.class, StreamMapping.class})
 public class CatServiceImpl implements CatService {
 
-	private final EntityManager entityManager;
-	private final CatDao catDao;
-	private final CatOwnerDao catOwnerDao;
+	private final Validator validator;
+	private final CatRepository catRepository;
+	private final CatOwnerRepository catOwnerRepository;
 
-	public CatServiceImpl(@NonNull EntityManager entityManager, @NonNull CatDao catDao,
-		@NonNull CatOwnerDao catOwnerDao) {
+	@Autowired
+	public CatServiceImpl(
+		Validator validator,
+		@NonNull CatRepository catRepository,
+		@NonNull CatOwnerRepository catOwnerRepository) {
+		this.validator = validator;
 
-		this.entityManager = entityManager;
-		this.catDao = catDao;
-		this.catOwnerDao = catOwnerDao;
+		this.catRepository = catRepository;
+		this.catOwnerRepository = catOwnerRepository;
 	}
 
 	@Override
+	@Transactional
 	public CatDto create(
 		@NonNull String name,
 		@NonNull LocalDate dateOfBirth,
@@ -42,114 +52,65 @@ public class CatServiceImpl implements CatService {
 		@NonNull FurColor furColor,
 		@NonNull Long catOwnerId) {
 
-		EntityTransaction transaction = entityManager.getTransaction();
-		try {
-			transaction.begin();
-			CatOwner catOwner = catOwnerDao.getById(catOwnerId);
-			Cat cat = new Cat(name, dateOfBirth, breed, furColor, catOwner);
-			CatDto catDto = catDao.save(cat).asDto();
-			transaction.commit();
-			return catDto;
-		} catch (PersistenceException e) {
-			transaction.rollback();
-			throw e;
+		CatOwner owner = catOwnerRepository.getReferenceById(catOwnerId);
+		Cat cat = new Cat(name, dateOfBirth, breed, furColor, owner);
+
+		Set<ConstraintViolation<Cat>> violations = validator.validate(cat);
+		if (!violations.isEmpty()) {
+			throw new ConstraintViolationException(violations);
 		}
+		return catRepository.saveAndFlush(cat).asDto();
 	}
 
 	@Override
-	public void remove(@NonNull Long id) {
+	@Transactional
+	public void delete(@NonNull Long id) {
 
-		EntityTransaction transaction = entityManager.getTransaction();
-		try {
-			transaction.begin();
-			Cat cat = catDao.getById(id);
-			List<Cat> friends = cat.getFriends().stream().toList();
-			for (Cat friend : friends) {
-				friend.removeFriend(cat);
-			}
-			cat.getOwner().removeCat(cat);
+		Cat cat = catRepository.getEntityById(id);
 
-			catDao.delete(cat);
-			transaction.commit();
-		} catch (PersistenceException e) {
-			transaction.rollback();
-			throw e;
+		List<Cat> friends = cat.getFriends().stream().toList();
+		for (Cat friend : friends) {
+			friend.removeFriend(cat);
 		}
+		cat.getOwner().removeCat(cat);
+
+		catRepository.delete(cat);
 	}
 
 	@Override
 	public CatDto get(@NonNull Long id) {
-		return catDao.getById(id).asDto();
-	}
-
-	@Override
-	public List<CatDto> getByName(@NonNull String name) {
-		return catDao.getByName(name).stream().asCatDto().toList();
-	}
-
-	@Override
-	public List<CatDto> getByDateOfBirth(@NonNull LocalDate dateOfBirth) {
-		return catDao.getByDateOfBirth(dateOfBirth).stream().asCatDto().toList();
-	}
-
-	@Override
-	public List<CatDto> getByOwner(Long ownerId) {
-		return catDao.getByOwner(ownerId).stream().asCatDto().toList();
-	}
-
-	@Override
-	public List<CatDto> getByColor(@NonNull FurColor color) {
-		return catDao.getByColor(color).stream().asCatDto().toList();
-	}
-
-	@Override
-	public List<CatDto> getByBreed(@NonNull String breed) {
-		return catDao.getByBreed(breed).stream().asCatDto().toList();
+		return catRepository.getEntityById(id).asDto();
 	}
 
 	@Override
 	public List<CatDto> getBy(@NonNull Predicate<Cat> condition) {
-		return catDao.getAll().stream().filter(condition).asCatDto().toList();
+		return catRepository.findAll().stream().filter(condition).asCatDto().toList();
 	}
 
 	@Override
 	public List<CatDto> getBy(@NonNull Map<String, Object> paramSet) {
-		return catDao.getByParamSet(paramSet).stream().asCatDto().toList();
+		return catRepository.getBy(paramSet).stream().asCatDto().toList();
 	}
 
 	@Override
+	@Transactional
 	public void makeFriends(@NonNull Long cat1Id, @NonNull Long cat2Id) {
 
-		EntityTransaction transaction = entityManager.getTransaction();
-		try {
-			transaction.begin();
-			Cat cat1 = catDao.getById(cat1Id);
-			Cat cat2 = catDao.getById(cat2Id);
+		Cat cat1 = catRepository.getEntityById(cat1Id);
+		Cat cat2 = catRepository.getEntityById(cat2Id);
 
-			cat1.addFriend(cat2);
-			catDao.update(cat1);
-			transaction.commit();
-		} catch (PersistenceException e) {
-			transaction.rollback();
-			throw e;
-		}
+		cat1.addFriend(cat2);
+		catRepository.save(cat1);
 	}
 
 	@Override
+	@Transactional
 	public void removeFriend(@NonNull Long cat1Id, @NonNull Long cat2Id) {
 
-		EntityTransaction transaction = entityManager.getTransaction();
-		try {
-			transaction.begin();
-			Cat cat1 = catDao.getById(cat1Id);
-			Cat cat2 = catDao.getById(cat2Id);
+		Cat cat1 = catRepository.getEntityById(cat1Id);
+		Cat cat2 = catRepository.getEntityById(cat2Id);
 
-			cat1.removeFriend(cat2);
-			catDao.update(cat1);
-			transaction.commit();
-		} catch (PersistenceException e) {
-			transaction.rollback();
-			throw e;
-		}
+		cat1.removeFriend(cat2);
+		catRepository.save(cat1);
 	}
 }

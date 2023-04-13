@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd"
+	objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+	<changeSet id="1681327343009-1" author="KarimKhasan (generated)">
+		<createSequence incrementBy="50" sequenceName="cat_owners_seq" startValue="1"/>
+	</changeSet>
+	<changeSet id="1681327343009-2" author="KarimKhasan (generated)">
+		<createSequence incrementBy="50" sequenceName="cats_seq" startValue="1"/>
+	</changeSet>
+	<changeSet id="1681327343009-3" author="KarimKhasan (generated)">
+		<createTable tableName="cat_friends">
+			<column name="cat_id" type="BIGINT">
+				<constraints nullable="false"/>
+			</column>
+			<column name="friend_id" type="BIGINT">
+				<constraints nullable="false"/>
+			</column>
+		</createTable>
+	</changeSet>
+	<changeSet id="1681327343009-4" author="KarimKhasan (generated)">
+		<createTable tableName="cat_owners">
+			<column name="id" type="BIGINT">
+				<constraints nullable="false" primaryKey="true" primaryKeyName="pk_cat_owners"/>
+			</column>
+			<column name="name" type="VARCHAR(255)"/>
+			<column name="date_of_birth" type="DATE"/>
+		</createTable>
+	</changeSet>
+	<changeSet id="1681327343009-5" author="KarimKhasan (generated)">
+		<createTable tableName="cats">
+			<column name="id" type="BIGINT">
+				<constraints nullable="false" primaryKey="true" primaryKeyName="pk_cats"/>
+			</column>
+			<column name="name" type="VARCHAR(255)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="date_of_birth" type="DATE">
+				<constraints nullable="false"/>
+			</column>
+			<column name="breed" type="VARCHAR(255)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="fur_color" type="VARCHAR(255)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="owner_id" type="BIGINT"/>
+		</createTable>
+	</changeSet>
+	<changeSet id="1681327343009-6" author="KarimKhasan (generated)">
+		<addForeignKeyConstraint baseColumnNames="owner_id" baseTableName="cats"
+								 constraintName="FK_CATS_ON_OWNER"
+								 referencedColumnNames="id" referencedTableName="cat_owners"/>
+	</changeSet>
+	<changeSet id="1681327343009-7" author="KarimKhasan (generated)">
+		<addForeignKeyConstraint baseColumnNames="cat_id" baseTableName="cat_friends"
+								 constraintName="fk_catfri_on_cat"
+								 referencedColumnNames="id" referencedTableName="cats"/>
+	</changeSet>
+	<changeSet id="1681327343009-8" author="KarimKhasan (generated)">
+		<addForeignKeyConstraint baseColumnNames="friend_id" baseTableName="cat_friends"
+								 constraintName="fk_catfri_on_friend" referencedColumnNames="id"
+								 referencedTableName="cats"/>
+	</changeSet>
+
+</databaseChangeLog>
