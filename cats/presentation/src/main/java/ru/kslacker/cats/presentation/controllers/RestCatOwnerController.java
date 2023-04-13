@@ -1,5 +1,6 @@
 package ru.kslacker.cats.presentation.controllers;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
@@ -26,6 +27,7 @@ import ru.kslacker.cats.services.dto.CatOwnerUpdateDto;
 
 @RestController
 @RequestMapping("/api/cat-owner")
+@Tag(name = "CatOwner", description = "Cat owners' management api")
 public class RestCatOwnerController {
 
 	private final CatOwnerService service;
@@ -35,31 +37,66 @@ public class RestCatOwnerController {
 		this.service = service;
 	}
 
+	/**
+	 * Create new cat owner
+	 *
+	 * @param owner Model of owner to create
+	 * @return Information about the created entity
+	 */
 	@PostMapping(produces = "application/json")
 	public ResponseEntity<CatOwnerDto> create(@Valid @RequestBody CreateCatOwnerModel owner) {
-		return new ResponseEntity<>(service.create(owner.name(), owner.dateOfBirth()), HttpStatus.CREATED);
+		return new ResponseEntity<>(service.create(owner.name(), owner.dateOfBirth()),
+			HttpStatus.CREATED);
 	}
 
+	/**
+	 * Get cat owner by id
+	 *
+	 * @param id Owner's id
+	 * @return Information about the cat with given id
+	 */
 	@GetMapping(value = "{id}", params = {"id"}, produces = "application/json")
 	public ResponseEntity<CatOwnerDto> get(@Positive @PathVariable Long id) {
 		return ResponseEntity.ok(service.get(id));
 	}
 
+	/**
+	 * Delete cat owner with given id
+	 *
+	 * @param id Owner's id
+	 * @return None
+	 */
 	@DeleteMapping("{id}")
 	public ResponseEntity<?> delete(@Positive @PathVariable Long id) {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
 	}
 
+	/**
+	 * Update existing owner with provided data
+	 *
+	 * @param id          Owner's id
+	 * @param updateModel Structure of update
+	 * @return Information about the updated entity
+	 */
 	@PutMapping(value = "{id}", produces = "application/json")
 	public ResponseEntity<CatOwnerDto> update(@Positive @PathVariable Long id, @RequestBody
-		UpdateCatOwnerModel updateModel) {
+	UpdateCatOwnerModel updateModel) {
 
-		CatOwnerDto ownerDto = service.update(new CatOwnerUpdateDto(id, updateModel.name(), updateModel.dateOfBirth(), updateModel.cats()));
+		CatOwnerDto ownerDto = service.update(
+			new CatOwnerUpdateDto(id, updateModel.name(), updateModel.dateOfBirth(),
+				updateModel.cats()));
 
 		return ResponseEntity.ok(ownerDto);
 	}
 
+	/**
+	 * Get owners by filter
+	 *
+	 * @param name        Owner's name
+	 * @param dateOfBirth Owner's date of birth
+	 * @return List of owners satisfying filter conditions
+	 */
 	@GetMapping(produces = "application/json")
 	public ResponseEntity<List<CatOwnerDto>> getBy(
 		@RequestParam(required = false) String name,

@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 // TODO tests
 // TODO Specifications instead of map
-// TODO proper validations on fields of dto
 // TODO Hide swagger on release versions (profiles!!) and hide not rest controllers
 // TODO Better openAPI docs
 // TODO html pages + controllers

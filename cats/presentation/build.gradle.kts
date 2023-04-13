@@ -17,7 +17,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+	implementation("com.github.therapi:therapi-runtime-javadoc:0.15.0")
+	annotationProcessor("com.github.therapi:therapi-runtime-javadoc-scribe:0.15.0")
 	implementation("org.liquibase:liquibase-core:4.20.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
