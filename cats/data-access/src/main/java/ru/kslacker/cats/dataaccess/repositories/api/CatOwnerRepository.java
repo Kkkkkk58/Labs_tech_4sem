@@ -11,8 +11,4 @@ public interface CatOwnerRepository extends JpaRepository<CatOwner, Long> {
 	List<CatOwner> getBy(Map<String, Object> paramSet);
 
 	CatOwner getEntityById(Long id);
-//
-//	default CatOwner getEntityById(Long id) {
-//		return findById(id).orElseThrow(() -> CatOwnerException.catOwnerNotFound(id));
-//	}
 }

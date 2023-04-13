@@ -24,4 +24,8 @@ public interface CatService {
 	void makeFriends(Long cat1Id, Long cat2Id);
 
 	void removeFriend(Long cat1Id, Long cat2Id);
+
+    boolean exists(Long id);
+
+	CatDto update(CatDto catDto);
 }

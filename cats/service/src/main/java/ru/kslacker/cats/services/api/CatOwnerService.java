@@ -1,12 +1,11 @@
 package ru.kslacker.cats.services.api;
 
-import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import ru.kslacker.cats.services.dto.CatOwnerDto;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import ru.kslacker.cats.dataaccess.entities.CatOwner;
+import ru.kslacker.cats.services.dto.CatOwnerDto;
 
 public interface CatOwnerService {
 
@@ -19,4 +18,8 @@ public interface CatOwnerService {
 	List<CatOwnerDto> getBy(Predicate<CatOwner> condition);
 
 	List<CatOwnerDto> getBy(Map<String, Object> paramSet);
+
+    boolean exists(Long id);
+
+	CatOwnerDto update(CatOwnerDto catOwnerDto);
 }

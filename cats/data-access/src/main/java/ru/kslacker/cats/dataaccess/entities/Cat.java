@@ -1,5 +1,6 @@
 package ru.kslacker.cats.dataaccess.entities;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -31,7 +32,7 @@ import ru.kslacker.cats.dataaccess.exceptions.CatException;
 @Entity
 @Table(name = "cats")
 @Getter
-@Setter(AccessLevel.PROTECTED)
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 public class Cat {
@@ -56,8 +57,7 @@ public class Cat {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "owner_id")
-	@Setter(AccessLevel.PACKAGE)
-	@Exclude
+	@ToString.Exclude
 	private CatOwner owner;
 
 	@ManyToMany(fetch = FetchType.LAZY)
@@ -107,6 +107,13 @@ public class Cat {
 		cat.friends.remove(this);
 	}
 
+	public void setOwner(@Nullable CatOwner owner) {
+		this.owner = owner;
+
+		if (owner != null) {
+			owner.addCat(this);
+		}
+	}
 
 	@Override
 	public boolean equals(Object o) {

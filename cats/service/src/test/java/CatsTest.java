@@ -22,6 +22,8 @@ import ru.kslacker.cats.services.dto.CatOwnerDto;
 
 @Component
 public class CatsTest {
+
+	@Autowired private Validator validator;
 	private CatRepository catRepository;
 
 	private CatOwnerRepository catOwnerRepository;
@@ -29,8 +31,6 @@ public class CatsTest {
 	private CatOwnerService catOwnerService;
 	private CatService catService;
 
-	@Autowired
-	private Validator validator;
 
 	@BeforeEach
 	public void setup() {

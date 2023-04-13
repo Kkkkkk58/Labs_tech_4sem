@@ -13,11 +13,13 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.kslacker.cats.presentation.models.catowners.CreateCatOwnerModel;
+import ru.kslacker.cats.presentation.models.catowners.UpdateCatOwnerModel;
 import ru.kslacker.cats.services.api.CatOwnerService;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
 
@@ -46,6 +48,15 @@ public class RestCatOwnerController {
 	public ResponseEntity<?> delete(@Positive @PathVariable Long id) {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
+	}
+
+	@PutMapping(value = "{id}", produces = "application/json")
+	public ResponseEntity<CatOwnerDto> update(@Positive @PathVariable Long id, @RequestBody
+		UpdateCatOwnerModel updateModel) {
+
+		CatOwnerDto ownerDto = service.update(new CatOwnerDto(id, updateModel.name(), updateModel.dateOfBirth(), updateModel.cats()));
+
+		return ResponseEntity.ok(ownerDto);
 	}
 
 	@GetMapping(produces = "application/json")

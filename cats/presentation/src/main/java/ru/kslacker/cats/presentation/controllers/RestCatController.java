@@ -15,12 +15,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.presentation.models.cats.CreateCatModel;
+import ru.kslacker.cats.presentation.models.cats.UpdateCatModel;
 import ru.kslacker.cats.services.api.CatService;
 import ru.kslacker.cats.services.dto.CatDto;
 
@@ -59,6 +61,14 @@ public class RestCatController {
 	@GetMapping(value = "{id}", produces = "application/json")
 	public ResponseEntity<CatDto> get(@Positive @PathVariable Long id) {
 		return ResponseEntity.ok(service.get(id));
+	}
+
+	@PutMapping(value = "{id}", produces = "application/json")
+	public ResponseEntity<CatDto> update(@Positive @PathVariable Long id, @RequestBody
+		UpdateCatModel updateModel) {
+
+		CatDto cat = service.update(new CatDto(id, updateModel.name(), updateModel.dateOfBirth(), updateModel.breed(), updateModel.furColor(), updateModel.ownerId(), updateModel.friends()));
+		return ResponseEntity.ok(cat);
 	}
 
 	@GetMapping(produces = "application/json")

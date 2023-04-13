@@ -25,7 +25,7 @@ import ru.kslacker.cats.dataaccess.exceptions.CatOwnerException;
 @Entity
 @Table(name = "cat_owners")
 @Getter
-@Setter(AccessLevel.PROTECTED)
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 public class CatOwner {
@@ -56,11 +56,13 @@ public class CatOwner {
 
 	public void addCat(Cat cat) {
 		if (cats.contains(cat)) {
-			throw CatOwnerException.catAlreadyExists(this, cat);
+			return;
 		}
 
 		cats.add(cat);
-		cat.setOwner(this);
+		if (cat.getOwner() != this) {
+			cat.setOwner(this);
+		}
 	}
 
 	public void removeCat(Cat cat) {
