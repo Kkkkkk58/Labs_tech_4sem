@@ -1,3 +1,5 @@
+package ru.kslacker.cats.test.service;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -21,7 +23,7 @@ import ru.kslacker.cats.services.dto.CatDto;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
 
 @Component
-public class CatsTest {
+public class CatsServicesTest {
 
 	@Autowired private Validator validator;
 	private CatRepository catRepository;

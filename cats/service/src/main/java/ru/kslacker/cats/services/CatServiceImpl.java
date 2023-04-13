@@ -36,7 +36,7 @@ public class CatServiceImpl implements CatService {
 
 	@Autowired
 	public CatServiceImpl(
-		@NonNull Validator validator,
+		Validator validator,
 		@NonNull CatRepository catRepository,
 		@NonNull CatOwnerRepository catOwnerRepository) {
 

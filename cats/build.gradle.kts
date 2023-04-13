@@ -12,12 +12,11 @@ repositories {
 }
 
 dependencies {
-	api(project(":cats:service"))
+	api(project(":cats:presentation"))
 	annotationProcessor("org.projectlombok:lombok:1.18.26")
-	api("org.springframework.boot:spring-boot-starter-web")
-	api("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
-	api("com.github.therapi:therapi-runtime-javadoc:0.15.0")
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	annotationProcessor("com.github.therapi:therapi-runtime-javadoc-scribe:0.15.0")
+	implementation("org.liquibase:liquibase-core:4.20.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 

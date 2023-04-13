@@ -32,7 +32,7 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 
 	@Autowired
 	public CatOwnerServiceImpl(
-		@NonNull Validator validator,
+		Validator validator,
 		@NonNull CatOwnerRepository catOwnerRepository) {
 
 		this.validator = validator;
