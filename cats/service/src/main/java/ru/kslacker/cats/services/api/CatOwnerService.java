@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
+import ru.kslacker.cats.services.dto.CatOwnerUpdateDto;
 
 public interface CatOwnerService {
 
@@ -21,5 +22,5 @@ public interface CatOwnerService {
 
     boolean exists(Long id);
 
-	CatOwnerDto update(CatOwnerDto catOwnerDto);
+	CatOwnerDto update(CatOwnerUpdateDto catOwnerDto);
 }

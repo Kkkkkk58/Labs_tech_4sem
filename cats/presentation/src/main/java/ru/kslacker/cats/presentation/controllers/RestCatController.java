@@ -25,6 +25,7 @@ import ru.kslacker.cats.presentation.models.cats.CreateCatModel;
 import ru.kslacker.cats.presentation.models.cats.UpdateCatModel;
 import ru.kslacker.cats.services.api.CatService;
 import ru.kslacker.cats.services.dto.CatDto;
+import ru.kslacker.cats.services.dto.CatUpdateDto;
 
 @Validated
 @RestController
@@ -67,7 +68,7 @@ public class RestCatController {
 	public ResponseEntity<CatDto> update(@Positive @PathVariable Long id, @RequestBody
 		UpdateCatModel updateModel) {
 
-		CatDto cat = service.update(new CatDto(id, updateModel.name(), updateModel.dateOfBirth(), updateModel.breed(), updateModel.furColor(), updateModel.ownerId(), updateModel.friends()));
+		CatDto cat = service.update(new CatUpdateDto(id, updateModel.name(), updateModel.dateOfBirth(), updateModel.breed(), updateModel.furColor(), updateModel.ownerId(), updateModel.friends()));
 		return ResponseEntity.ok(cat);
 	}
 

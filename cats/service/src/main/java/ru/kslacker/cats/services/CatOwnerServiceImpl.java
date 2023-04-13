@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
 import ru.kslacker.cats.dataaccess.repositories.api.CatOwnerRepository;
-import ru.kslacker.cats.dataaccess.repositories.api.CatRepository;
 import ru.kslacker.cats.services.api.CatOwnerService;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
+import ru.kslacker.cats.services.dto.CatOwnerUpdateDto;
 import ru.kslacker.cats.services.mapping.CatOwnerMapping;
 import ru.kslacker.cats.services.mapping.StreamMapping;
 
@@ -74,9 +74,9 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 	}
 
 	@Override
-	public CatOwnerDto update(CatOwnerDto catOwnerDto) {
+	public CatOwnerDto update(CatOwnerUpdateDto catOwnerDto) {
 
-		Set<ConstraintViolation<CatOwnerDto>> violations = validator.validate(catOwnerDto);
+		Set<ConstraintViolation<CatOwnerUpdateDto>> violations = validator.validate(catOwnerDto);
 		if (!violations.isEmpty()) {
 			throw new ConstraintViolationException(violations);
 		}

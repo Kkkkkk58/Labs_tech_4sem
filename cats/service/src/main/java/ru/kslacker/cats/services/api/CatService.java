@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.dataaccess.entities.Cat;
 import ru.kslacker.cats.services.dto.CatDto;
+import ru.kslacker.cats.services.dto.CatUpdateDto;
 
 public interface CatService {
 
@@ -27,5 +28,5 @@ public interface CatService {
 
     boolean exists(Long id);
 
-	CatDto update(CatDto catDto);
+	CatDto update(CatUpdateDto catDto);
 }

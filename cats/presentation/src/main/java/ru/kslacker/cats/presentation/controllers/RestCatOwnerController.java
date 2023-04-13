@@ -22,6 +22,7 @@ import ru.kslacker.cats.presentation.models.catowners.CreateCatOwnerModel;
 import ru.kslacker.cats.presentation.models.catowners.UpdateCatOwnerModel;
 import ru.kslacker.cats.services.api.CatOwnerService;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
+import ru.kslacker.cats.services.dto.CatOwnerUpdateDto;
 
 @RestController
 @RequestMapping("/api/cat-owner")
@@ -54,7 +55,7 @@ public class RestCatOwnerController {
 	public ResponseEntity<CatOwnerDto> update(@Positive @PathVariable Long id, @RequestBody
 		UpdateCatOwnerModel updateModel) {
 
-		CatOwnerDto ownerDto = service.update(new CatOwnerDto(id, updateModel.name(), updateModel.dateOfBirth(), updateModel.cats()));
+		CatOwnerDto ownerDto = service.update(new CatOwnerUpdateDto(id, updateModel.name(), updateModel.dateOfBirth(), updateModel.cats()));
 
 		return ResponseEntity.ok(ownerDto);
 	}

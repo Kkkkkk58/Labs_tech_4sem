@@ -21,6 +21,7 @@ import ru.kslacker.cats.dataaccess.repositories.api.CatOwnerRepository;
 import ru.kslacker.cats.dataaccess.repositories.api.CatRepository;
 import ru.kslacker.cats.services.api.CatService;
 import ru.kslacker.cats.services.dto.CatDto;
+import ru.kslacker.cats.services.dto.CatUpdateDto;
 import ru.kslacker.cats.services.mapping.CatMapping;
 import ru.kslacker.cats.services.mapping.StreamMapping;
 
@@ -119,9 +120,9 @@ public class CatServiceImpl implements CatService {
 	}
 
 	@Override
-	public CatDto update(CatDto catDto) {
+	public CatDto update(CatUpdateDto catDto) {
 
-		Set<ConstraintViolation<CatDto>> violations = validator.validate(catDto);
+		Set<ConstraintViolation<CatUpdateDto>> violations = validator.validate(catDto);
 		if (!violations.isEmpty()) {
 			throw new ConstraintViolationException(violations);
 		}
