@@ -76,7 +76,7 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 		Specification<CatOwner> specification = where(withName(name)).and(withDateOfBirth(dateOfBirth));
 		for (Long id : Optional.ofNullable(catsIds).orElse(Collections.emptyList())) {
 			Cat cat = catRepository.getEntityById(id);
-			specification.and(withCat(cat));
+			specification = specification.and(withCat(cat));
 		}
 
 		return catOwnerRepository.findAll(specification, pageable).stream().asCatOwnerDto().toList();

@@ -101,7 +101,7 @@ public class CatServiceImpl implements CatService {
 
 		for (Long id : Optional.ofNullable(friendsIds).orElse(Collections.emptyList())) {
 			Cat friend = catRepository.getEntityById(id);
-			specification.and(withFriend(friend));
+			specification = specification.and(withFriend(friend));
 		}
 
 		return catRepository.findAll(specification, pageable).stream().asCatDto().toList();
