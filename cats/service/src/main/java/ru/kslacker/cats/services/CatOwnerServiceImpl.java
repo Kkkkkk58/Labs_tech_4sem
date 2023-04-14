@@ -23,11 +23,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kslacker.cats.dataaccess.entities.Cat;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import ru.kslacker.cats.dataaccess.repositories.api.CatOwnerRepository;
-import ru.kslacker.cats.dataaccess.repositories.api.CatRepository;
+import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
+import ru.kslacker.cats.dataaccess.repositories.CatRepository;
 import ru.kslacker.cats.services.api.CatOwnerService;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
 import ru.kslacker.cats.services.dto.CatOwnerUpdateDto;
+import ru.kslacker.cats.services.exceptions.EntityException;
 import ru.kslacker.cats.services.mapping.CatOwnerMapping;
 import ru.kslacker.cats.services.mapping.StreamMapping;
 
@@ -61,13 +62,13 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 	@Override
 	@Transactional
 	public void delete(@NonNull Long id) {
-		CatOwner owner = catOwnerRepository.getEntityById(id);
+		CatOwner owner = getCatOwnerById(id);
 		catOwnerRepository.delete(owner);
 	}
 
 	@Override
 	public CatOwnerDto get(@NonNull Long id) {
-		return catOwnerRepository.getEntityById(id).asDto();
+		return getCatOwnerById(id).asDto();
 	}
 
 	@Override
@@ -75,7 +76,7 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 
 		Specification<CatOwner> specification = where(withName(name)).and(withDateOfBirth(dateOfBirth));
 		for (Long id : Optional.ofNullable(catsIds).orElse(Collections.emptyList())) {
-			Cat cat = catRepository.getEntityById(id);
+			Cat cat = getCatById(id);
 			specification = specification.and(withCat(cat));
 		}
 
@@ -95,7 +96,7 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 			throw new ConstraintViolationException(violations);
 		}
 
-		CatOwner owner = catOwnerRepository.getEntityById(catOwnerDto.id());
+		CatOwner owner = getCatOwnerById(catOwnerDto.id());
 
 		if (catOwnerDto.name() != null) {
 			owner.setName(catOwnerDto.name());
@@ -107,5 +108,12 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 		return catOwnerRepository.save(owner).asDto();
 	}
 
+	private CatOwner getCatOwnerById(Long id) {
+		return catOwnerRepository.findById(id).orElseThrow(() -> EntityException.entityNotFound(CatOwner.class, id));
+	}
+
+	private Cat getCatById(Long id) {
+		return catRepository.findById(id).orElseThrow(() -> EntityException.entityNotFound(Cat.class, id));
+	}
 
 }

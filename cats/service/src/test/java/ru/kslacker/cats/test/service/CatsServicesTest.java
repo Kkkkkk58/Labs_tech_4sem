@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import jakarta.validation.Validator;
 import java.time.LocalDate;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,8 +14,8 @@ import org.springframework.stereotype.Component;
 import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.dataaccess.entities.Cat;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import ru.kslacker.cats.dataaccess.repositories.api.CatOwnerRepository;
-import ru.kslacker.cats.dataaccess.repositories.api.CatRepository;
+import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
+import ru.kslacker.cats.dataaccess.repositories.CatRepository;
 import ru.kslacker.cats.services.CatOwnerServiceImpl;
 import ru.kslacker.cats.services.CatServiceImpl;
 import ru.kslacker.cats.services.api.CatOwnerService;
@@ -48,7 +49,7 @@ public class CatsServicesTest {
 		String name = "Aboba Aboba";
 		LocalDate birthDate = LocalDate.of(1992, 10, 1);
 		CatOwner catOwner = new CatOwner(name, birthDate);
-		when(catOwnerRepository.getEntityById(1L)).thenReturn(catOwner);
+		when(catOwnerRepository.findById(1L)).thenReturn(Optional.of(catOwner));
 
 		CatOwnerDto catOwnerDto = catOwnerService.get(1L);
 
@@ -65,8 +66,8 @@ public class CatsServicesTest {
 
 		CatOwner owner = getTestOwner();
 		Cat cat = new Cat(name, birthDate, breed, furColor, owner);
-		when(catOwnerRepository.getEntityById(1L)).thenReturn(owner);
-		when(catRepository.getEntityById(1L)).thenReturn(cat);
+		when(catOwnerRepository.findById(1L)).thenReturn(Optional.of(owner));
+		when(catRepository.findById(1L)).thenReturn(Optional.of(cat));
 
 		CatDto catDto = catService.get(1L);
 		CatOwnerDto catOwnerDto = catOwnerService.get(1L);
@@ -84,8 +85,8 @@ public class CatsServicesTest {
 		CatOwner owner = getTestOwner();
 		Cat cat1 = getTestCat(owner, "1");
 		Cat cat2 = getTestCat(owner, "2");
-		when(catRepository.getEntityById(1L)).thenReturn(cat1);
-		when(catRepository.getEntityById(2L)).thenReturn(cat2);
+		when(catRepository.findById(1L)).thenReturn(Optional.of(cat1));
+		when(catRepository.findById(2L)).thenReturn(Optional.of(cat2));
 
 		catService.makeFriends(1L, 2L);
 
@@ -100,8 +101,8 @@ public class CatsServicesTest {
 		CatOwner owner = getTestOwner();
 		Cat cat1 = getTestCat(owner, "1");
 		Cat cat2 = getTestCat(owner, "2");
-		when(catRepository.getEntityById(1L)).thenReturn(cat1);
-		when(catRepository.getEntityById(2L)).thenReturn(cat2);
+		when(catRepository.findById(1L)).thenReturn(Optional.of(cat1));
+		when(catRepository.findById(2L)).thenReturn(Optional.of(cat2));
 
 		catService.makeFriends(1L, 2L);
 		catService.removeFriend(1L, 2L);
@@ -117,9 +118,9 @@ public class CatsServicesTest {
 		CatOwner owner = getTestOwner();
 		Cat cat1 = getTestCat(owner, "1");
 		Cat cat2 = getTestCat(owner, "2");
-		when(catOwnerRepository.getEntityById(1L)).thenReturn(owner);
-		when(catRepository.getEntityById(1L)).thenReturn(cat1);
-		when(catRepository.getEntityById(2L)).thenReturn(cat2);
+		when(catOwnerRepository.findById(1L)).thenReturn(Optional.of(owner));
+		when(catRepository.findById(1L)).thenReturn(Optional.of(cat1));
+		when(catRepository.findById(2L)).thenReturn(Optional.of(cat2));
 
 		catService.makeFriends(1L, 2L);
 		catService.delete(1L);

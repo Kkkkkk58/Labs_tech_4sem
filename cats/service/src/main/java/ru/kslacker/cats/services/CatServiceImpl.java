@@ -26,11 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.dataaccess.entities.Cat;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import ru.kslacker.cats.dataaccess.repositories.api.CatOwnerRepository;
-import ru.kslacker.cats.dataaccess.repositories.api.CatRepository;
+import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
+import ru.kslacker.cats.dataaccess.repositories.CatRepository;
 import ru.kslacker.cats.services.api.CatService;
 import ru.kslacker.cats.services.dto.CatDto;
 import ru.kslacker.cats.services.dto.CatUpdateDto;
+import ru.kslacker.cats.services.exceptions.EntityException;
 import ru.kslacker.cats.services.mapping.CatMapping;
 import ru.kslacker.cats.services.mapping.StreamMapping;
 
@@ -73,7 +74,7 @@ public class CatServiceImpl implements CatService {
 	@Transactional
 	public void delete(@NonNull Long id) {
 
-		Cat cat = catRepository.getEntityById(id);
+		Cat cat = getCatById(id);
 
 		List<Cat> friends = cat.getFriends().stream().toList();
 		for (Cat friend : friends) {
@@ -88,7 +89,7 @@ public class CatServiceImpl implements CatService {
 
 	@Override
 	public CatDto get(@NonNull Long id) {
-		return catRepository.getEntityById(id).asDto();
+		return getCatById(id).asDto();
 	}
 
 	@Override
@@ -100,7 +101,7 @@ public class CatServiceImpl implements CatService {
 				.and(withFurColor(furColor)).and(withOwnerId(ownerId));
 
 		for (Long id : Optional.ofNullable(friendsIds).orElse(Collections.emptyList())) {
-			Cat friend = catRepository.getEntityById(id);
+			Cat friend = getCatById(id);
 			specification = specification.and(withFriend(friend));
 		}
 
@@ -111,8 +112,8 @@ public class CatServiceImpl implements CatService {
 	@Transactional
 	public void makeFriends(@NonNull Long cat1Id, @NonNull Long cat2Id) {
 
-		Cat cat1 = catRepository.getEntityById(cat1Id);
-		Cat cat2 = catRepository.getEntityById(cat2Id);
+		Cat cat1 = getCatById(cat1Id);
+		Cat cat2 = getCatById(cat2Id);
 
 		cat1.addFriend(cat2);
 		catRepository.save(cat1);
@@ -122,8 +123,8 @@ public class CatServiceImpl implements CatService {
 	@Transactional
 	public void removeFriend(@NonNull Long cat1Id, @NonNull Long cat2Id) {
 
-		Cat cat1 = catRepository.getEntityById(cat1Id);
-		Cat cat2 = catRepository.getEntityById(cat2Id);
+		Cat cat1 = getCatById(cat1Id);
+		Cat cat2 = getCatById(cat2Id);
 
 		cat1.removeFriend(cat2);
 		catRepository.save(cat1);
@@ -142,7 +143,7 @@ public class CatServiceImpl implements CatService {
 			throw new ConstraintViolationException(violations);
 		}
 
-		Cat cat = catRepository.getEntityById(catDto.id());
+		Cat cat = getCatById(catDto.id());
 
 		if (catDto.name() != null) {
 			cat.setName(catDto.name());
@@ -157,9 +158,17 @@ public class CatServiceImpl implements CatService {
 			cat.setFurColor(catDto.furColor());
 		}
 		if (catDto.ownerId() != null) {
-			cat.setOwner(catOwnerRepository.getEntityById(catDto.ownerId()));
+			cat.setOwner(getCatOwnerById(catDto.ownerId()));
 		}
 
 		return catRepository.save(cat).asDto();
+	}
+
+	private Cat getCatById(Long id) {
+		return catRepository.findById(id).orElseThrow(() -> EntityException.entityNotFound(Cat.class, id));
+	}
+
+	private CatOwner getCatOwnerById(Long ownerId) {
+		return catOwnerRepository.findById(ownerId).orElseThrow(() -> EntityException.entityNotFound(CatOwner.class, ownerId));
 	}
 }

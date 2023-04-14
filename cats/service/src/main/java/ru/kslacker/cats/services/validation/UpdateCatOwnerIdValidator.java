@@ -3,7 +3,7 @@ package ru.kslacker.cats.services.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.kslacker.cats.dataaccess.repositories.api.CatOwnerRepository;
+import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
 
 public class UpdateCatOwnerIdValidator implements ConstraintValidator<ValidUpdateCatOwnerId, Long> {
 

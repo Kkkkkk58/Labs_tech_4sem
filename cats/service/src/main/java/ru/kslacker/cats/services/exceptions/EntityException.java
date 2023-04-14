@@ -1,4 +1,4 @@
-package ru.kslacker.cats.dataaccess.exceptions;
+package ru.kslacker.cats.services.exceptions;
 
 import ru.kslacker.cats.common.exceptions.CatsException;
 

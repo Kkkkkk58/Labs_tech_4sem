@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.kslacker.cats.dataaccess.repositories.api.CatOwnerRepository;
-import ru.kslacker.cats.dataaccess.repositories.api.CatRepository;
+import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
+import ru.kslacker.cats.dataaccess.repositories.CatRepository;
 
 @DataJpaTest
 public class CatsDataTest {

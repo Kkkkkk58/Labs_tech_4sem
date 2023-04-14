@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.kslacker.cats.common.exceptions.CatsException;
 import ru.kslacker.cats.dataaccess.exceptions.CatException;
 import ru.kslacker.cats.dataaccess.exceptions.CatOwnerException;
-import ru.kslacker.cats.dataaccess.exceptions.EntityException;
+import ru.kslacker.cats.services.exceptions.EntityException;
 import ru.kslacker.cats.presentation.responses.ValidationErrorResponse;
 import ru.kslacker.cats.presentation.responses.Violation;
 
