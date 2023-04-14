@@ -42,6 +42,7 @@ public class CatOwner {
 	private LocalDate dateOfBirth;
 
 	@OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@Setter(AccessLevel.PROTECTED)
 	@ToString.Exclude
 	private List<Cat> cats = new ArrayList<>();
 

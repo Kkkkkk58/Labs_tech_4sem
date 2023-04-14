@@ -24,7 +24,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
 import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.dataaccess.exceptions.CatException;
@@ -64,7 +63,8 @@ public class Cat {
 	@JoinTable(name = "cat_friends",
 		joinColumns = @JoinColumn(name = "cat_id"),
 		inverseJoinColumns = @JoinColumn(name = "friend_id"))
-	@Exclude
+	@Setter(AccessLevel.PROTECTED)
+	@ToString.Exclude
 	private List<Cat> friends = new ArrayList<>();
 
 	public Cat(

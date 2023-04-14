@@ -40,7 +40,7 @@ public class CatsServicesTest {
 		catOwnerRepository = mock(CatOwnerRepository.class);
 
 		catService = new CatServiceImpl(validator, catRepository, catOwnerRepository);
-		catOwnerService = new CatOwnerServiceImpl(validator, catOwnerRepository);
+		catOwnerService = new CatOwnerServiceImpl(validator, catOwnerRepository, catRepository);
 	}
 
 	@Test

@@ -1,17 +1,26 @@
 package ru.kslacker.cats.services;
 
+import static org.springframework.data.jpa.domain.Specification.where;
+import static ru.kslacker.cats.dataaccess.specifications.CatFieldSpecifications.withBreed;
+import static ru.kslacker.cats.dataaccess.specifications.CatFieldSpecifications.withDateOfBirth;
+import static ru.kslacker.cats.dataaccess.specifications.CatFieldSpecifications.withFriend;
+import static ru.kslacker.cats.dataaccess.specifications.CatFieldSpecifications.withFurColor;
+import static ru.kslacker.cats.dataaccess.specifications.CatFieldSpecifications.withName;
+import static ru.kslacker.cats.dataaccess.specifications.CatFieldSpecifications.withOwnerId;
+
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kslacker.cats.common.models.FurColor;
@@ -83,13 +92,19 @@ public class CatServiceImpl implements CatService {
 	}
 
 	@Override
-	public List<CatDto> getBy(@NonNull Predicate<Cat> condition) {
-		return catRepository.findAll().stream().filter(condition).asCatDto().toList();
-	}
+	public List<CatDto> getBy(String name, LocalDate dateOfBirth, String breed, FurColor furColor,
+		Long ownerId, List<Long> friendsIds, Pageable pageable) {
 
-	@Override
-	public List<CatDto> getBy(@NonNull Map<String, Object> paramSet) {
-		return catRepository.getBy(paramSet).stream().asCatDto().toList();
+		Specification<Cat> specification = where(
+			withName(name)).and(withDateOfBirth(dateOfBirth)).and(withBreed(breed))
+				.and(withFurColor(furColor)).and(withOwnerId(ownerId));
+
+		for (Long id : Optional.ofNullable(friendsIds).orElse(Collections.emptyList())) {
+			Cat friend = catRepository.getEntityById(id);
+			specification.and(withFriend(friend));
+		}
+
+		return catRepository.findAll(specification, pageable).stream().asCatDto().toList();
 	}
 
 	@Override
@@ -140,9 +155,6 @@ public class CatServiceImpl implements CatService {
 		}
 		if (catDto.furColor() != null) {
 			cat.setFurColor(catDto.furColor());
-		}
-		if (catDto.friends() != null) {
-			cat.setFriends(new ArrayList<>(catDto.friends().stream().map(catRepository::getEntityById).toList()));
 		}
 		if (catDto.ownerId() != null) {
 			cat.setOwner(catOwnerRepository.getEntityById(catDto.ownerId()));

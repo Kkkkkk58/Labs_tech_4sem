@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 // TODO tests
-// TODO Specifications instead of map
 // TODO Hide swagger on release versions (profiles!!) and hide not rest controllers
 // TODO html pages + controllers
 

@@ -2,9 +2,7 @@ package ru.kslacker.cats.services.api;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
-import ru.kslacker.cats.dataaccess.entities.CatOwner;
+import org.springframework.data.domain.Pageable;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
 import ru.kslacker.cats.services.dto.CatOwnerUpdateDto;
 
@@ -16,9 +14,7 @@ public interface CatOwnerService {
 
 	CatOwnerDto get(Long id);
 
-	List<CatOwnerDto> getBy(Predicate<CatOwner> condition);
-
-	List<CatOwnerDto> getBy(Map<String, Object> paramSet);
+	List<CatOwnerDto> getBy(String name, LocalDate dateOfBirth, List<Long> catsIds, Pageable pageable);
 
     boolean exists(Long id);
 
