@@ -43,9 +43,9 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 
 	@Autowired
 	public CatOwnerServiceImpl(
-		Validator validator,
-		CatOwnerRepository catOwnerRepository,
-		CatRepository catRepository) {
+		@NonNull Validator validator,
+		@NonNull CatOwnerRepository catOwnerRepository,
+		@NonNull CatRepository catRepository) {
 
 		this.validator = validator;
 		this.catOwnerRepository = catOwnerRepository;
@@ -72,15 +72,18 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 	}
 
 	@Override
-	public List<CatOwnerDto> getBy(String name, LocalDate dateOfBirth, List<Long> catsIds, Pageable pageable) {
+	public List<CatOwnerDto> getBy(String name, LocalDate dateOfBirth, List<Long> catsIds,
+		Pageable pageable) {
 
-		Specification<CatOwner> specification = where(withName(name)).and(withDateOfBirth(dateOfBirth));
+		Specification<CatOwner> specification = where(withName(name)).and(
+			withDateOfBirth(dateOfBirth));
 		for (Long id : Optional.ofNullable(catsIds).orElse(Collections.emptyList())) {
 			Cat cat = getCatById(id);
 			specification = specification.and(withCat(cat));
 		}
 
-		return catOwnerRepository.findAll(specification, pageable).stream().asCatOwnerDto().toList();
+		return catOwnerRepository.findAll(specification, pageable).stream().asCatOwnerDto()
+			.toList();
 	}
 
 	@Override
@@ -91,10 +94,7 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 	@Override
 	public CatOwnerDto update(CatOwnerUpdateDto catOwnerDto) {
 
-		Set<ConstraintViolation<CatOwnerUpdateDto>> violations = validator.validate(catOwnerDto);
-		if (!violations.isEmpty()) {
-			throw new ConstraintViolationException(violations);
-		}
+		validateUpdateDto(catOwnerDto);
 
 		CatOwner owner = getCatOwnerById(catOwnerDto.id());
 
@@ -108,12 +108,22 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 		return catOwnerRepository.save(owner).asDto();
 	}
 
+	private void validateUpdateDto(CatOwnerUpdateDto catOwnerDto) {
+		Set<ConstraintViolation<CatOwnerUpdateDto>> violations = validator.validate(
+			catOwnerDto);
+		if (!violations.isEmpty()) {
+			throw new ConstraintViolationException(violations);
+		}
+	}
+
 	private CatOwner getCatOwnerById(Long id) {
-		return catOwnerRepository.findById(id).orElseThrow(() -> EntityException.entityNotFound(CatOwner.class, id));
+		return catOwnerRepository.findById(id)
+			.orElseThrow(() -> EntityException.entityNotFound(CatOwner.class, id));
 	}
 
 	private Cat getCatById(Long id) {
-		return catRepository.findById(id).orElseThrow(() -> EntityException.entityNotFound(Cat.class, id));
+		return catRepository.findById(id)
+			.orElseThrow(() -> EntityException.entityNotFound(Cat.class, id));
 	}
 
 }

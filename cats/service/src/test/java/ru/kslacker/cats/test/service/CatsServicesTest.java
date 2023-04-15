@@ -9,7 +9,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.dataaccess.entities.Cat;
@@ -26,7 +25,7 @@ import ru.kslacker.cats.services.dto.CatOwnerDto;
 @Component
 public class CatsServicesTest {
 
-	@Autowired private Validator validator;
+	private Validator validator;
 	private CatRepository catRepository;
 
 	private CatOwnerRepository catOwnerRepository;
@@ -39,6 +38,7 @@ public class CatsServicesTest {
 	public void setup() {
 		catRepository = mock(CatRepository.class);
 		catOwnerRepository = mock(CatOwnerRepository.class);
+		validator = mock(Validator.class);
 
 		catService = new CatServiceImpl(validator, catRepository, catOwnerRepository);
 		catOwnerService = new CatOwnerServiceImpl(validator, catOwnerRepository, catRepository);

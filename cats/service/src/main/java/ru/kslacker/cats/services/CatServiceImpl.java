@@ -46,7 +46,7 @@ public class CatServiceImpl implements CatService {
 
 	@Autowired
 	public CatServiceImpl(
-		Validator validator,
+		@NonNull Validator validator,
 		@NonNull CatRepository catRepository,
 		@NonNull CatOwnerRepository catOwnerRepository) {
 
@@ -138,10 +138,7 @@ public class CatServiceImpl implements CatService {
 	@Override
 	public CatDto update(CatUpdateDto catDto) {
 
-		Set<ConstraintViolation<CatUpdateDto>> violations = validator.validate(catDto);
-		if (!violations.isEmpty()) {
-			throw new ConstraintViolationException(violations);
-		}
+		validateUpdateDto(catDto);
 
 		Cat cat = getCatById(catDto.id());
 
@@ -162,6 +159,13 @@ public class CatServiceImpl implements CatService {
 		}
 
 		return catRepository.save(cat).asDto();
+	}
+
+	private void validateUpdateDto(CatUpdateDto catDto) {
+		Set<ConstraintViolation<CatUpdateDto>> violations = validator.validate(catDto);
+		if (!violations.isEmpty()) {
+			throw new ConstraintViolationException(violations);
+		}
 	}
 
 	private Cat getCatById(Long id) {
