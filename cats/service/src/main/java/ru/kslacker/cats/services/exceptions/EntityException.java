@@ -9,6 +9,7 @@ public class EntityException extends CatsException {
 	}
 
 	public static <T, ID> EntityException entityNotFound(Class<T> clazz, ID id) {
-		return new EntityException("Entity of type " + clazz.getName() + " with id " + id + " not found");
+		return new EntityException(
+			"Entity of type " + clazz.getName() + " with id " + id + " not found");
 	}
 }

@@ -98,7 +98,7 @@ public class CatServiceImpl implements CatService {
 
 		Specification<Cat> specification = where(
 			withName(name)).and(withDateOfBirth(dateOfBirth)).and(withBreed(breed))
-				.and(withFurColor(furColor)).and(withOwnerId(ownerId));
+			.and(withFurColor(furColor)).and(withOwnerId(ownerId));
 
 		for (Long id : Optional.ofNullable(friendsIds).orElse(Collections.emptyList())) {
 			Cat friend = getCatById(id);
@@ -169,10 +169,12 @@ public class CatServiceImpl implements CatService {
 	}
 
 	private Cat getCatById(Long id) {
-		return catRepository.findById(id).orElseThrow(() -> EntityException.entityNotFound(Cat.class, id));
+		return catRepository.findById(id)
+			.orElseThrow(() -> EntityException.entityNotFound(Cat.class, id));
 	}
 
 	private CatOwner getCatOwnerById(Long ownerId) {
-		return catOwnerRepository.findById(ownerId).orElseThrow(() -> EntityException.entityNotFound(CatOwner.class, ownerId));
+		return catOwnerRepository.findById(ownerId)
+			.orElseThrow(() -> EntityException.entityNotFound(CatOwner.class, ownerId));
 	}
 }

@@ -1,11 +1,11 @@
 package ru.kslacker.cats.services.mapping;
 
+import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
 import ru.kslacker.cats.dataaccess.entities.Cat;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
 import ru.kslacker.cats.services.dto.CatDto;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
-import java.util.stream.Stream;
 
 @UtilityClass
 public class StreamMapping {

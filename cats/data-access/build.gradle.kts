@@ -1,5 +1,5 @@
 plugins {
-    id("java-library")
+	id("java-library")
 	id("org.springframework.boot") version "3.0.5"
 	id("io.spring.dependency-management") version "1.1.0"
 }
@@ -8,7 +8,7 @@ group = "ru.kslacker.cats"
 version = "1.0.0-SNAPSHOT"
 
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 
 dependencies {
@@ -24,7 +24,7 @@ dependencies {
 }
 
 tasks.getByName<Test>("test") {
-    useJUnitPlatform()
+	useJUnitPlatform()
 }
 
 

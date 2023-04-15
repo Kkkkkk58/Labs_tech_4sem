@@ -1,9 +1,9 @@
 package ru.kslacker.cats.dataaccess.specifications;
 
+import java.time.LocalDate;
 import org.springframework.data.jpa.domain.Specification;
 import ru.kslacker.cats.dataaccess.entities.Cat;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import java.time.LocalDate;
 
 public class CatOwnerFieldsSpecifications {
 
@@ -11,7 +11,8 @@ public class CatOwnerFieldsSpecifications {
 		if (name == null) {
 			return null;
 		} else {
-			return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("name"), name));
+			return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("name"),
+				name));
 		}
 	}
 
@@ -19,7 +20,8 @@ public class CatOwnerFieldsSpecifications {
 		if (dateOfBirth == null) {
 			return null;
 		} else {
-			return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("dateOfBirth"), dateOfBirth));
+			return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("dateOfBirth"),
+				dateOfBirth));
 		}
 	}
 
@@ -27,7 +29,8 @@ public class CatOwnerFieldsSpecifications {
 		if (cat == null) {
 			return null;
 		} else {
-			return ((root, query, criteriaBuilder) -> criteriaBuilder.isMember(cat, root.get("cats")));
+			return ((root, query, criteriaBuilder) -> criteriaBuilder.isMember(cat,
+				root.get("cats")));
 		}
 	}
 

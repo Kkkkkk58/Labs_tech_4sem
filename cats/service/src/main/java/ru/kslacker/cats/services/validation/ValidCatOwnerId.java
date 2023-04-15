@@ -13,8 +13,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ValidCatOwnerId {
+
 	String message() default "Cat owner id is invalid";
+
 	Class<?>[] groups() default {};
+
 	Class<? extends Payload>[] payload() default {};
 
 }

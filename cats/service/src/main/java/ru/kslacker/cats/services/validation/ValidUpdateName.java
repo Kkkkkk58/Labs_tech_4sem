@@ -13,7 +13,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ValidUpdateName {
+
 	String message() default "Name is invalid";
+
 	Class<?>[] groups() default {};
+
 	Class<? extends Payload>[] payload() default {};
 }

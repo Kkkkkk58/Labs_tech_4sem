@@ -14,9 +14,10 @@ public interface CatOwnerService {
 
 	CatOwnerDto get(Long id);
 
-	List<CatOwnerDto> getBy(String name, LocalDate dateOfBirth, List<Long> catsIds, Pageable pageable);
+	List<CatOwnerDto> getBy(String name, LocalDate dateOfBirth, List<Long> catsIds,
+		Pageable pageable);
 
-    boolean exists(Long id);
+	boolean exists(Long id);
 
 	CatOwnerDto update(CatOwnerUpdateDto catOwnerDto);
 }

@@ -7,7 +7,8 @@ import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
 
 public class CatOwnerIdValidator implements ConstraintValidator<ValidCatOwnerId, Long> {
 
-	@Autowired private CatOwnerRepository catOwnerRepository;
+	@Autowired
+	private CatOwnerRepository catOwnerRepository;
 
 	@Override
 	public boolean isValid(Long value, ConstraintValidatorContext context) {

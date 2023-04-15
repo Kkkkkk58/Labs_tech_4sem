@@ -5,8 +5,8 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
 import ru.kslacker.cats.common.models.FurColor;
-import ru.kslacker.cats.services.validation.ValidUpdateName;
 import ru.kslacker.cats.presentation.validation.ValidationGroup;
+import ru.kslacker.cats.services.validation.ValidUpdateName;
 
 public record CatModel(
 	@NotBlank(groups = ValidationGroup.OnCreate.class)

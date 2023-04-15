@@ -28,9 +28,9 @@ import ru.kslacker.cats.services.dto.CatOwnerDto;
 @WebMvcTest(controllers = {RestCatController.class, RestCatOwnerController.class})
 public class CatsRestApiTest {
 
+	public static final String APPLICATION_JSON = "application/json";
 	private static final String API_CAT_OWNER = "/api/cat-owner";
 	private static final String API_CAT = "/api/cat";
-	public static final String APPLICATION_JSON = "application/json";
 	@Autowired
 	private MockMvc mockMvc;
 	@Autowired
@@ -131,9 +131,9 @@ public class CatsRestApiTest {
 		CatOwnerModel owner = new CatOwnerModel(null, LocalDate.of(2003, 5, 7));
 
 		mockMvc.perform(put(API_CAT_OWNER + "/{id}", 1L)
-				.param("id", String.valueOf(1L))
-				.contentType(APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(owner))
+			.param("id", String.valueOf(1L))
+			.contentType(APPLICATION_JSON)
+			.content(objectMapper.writeValueAsString(owner))
 		).andExpect(status().isOk());
 	}
 

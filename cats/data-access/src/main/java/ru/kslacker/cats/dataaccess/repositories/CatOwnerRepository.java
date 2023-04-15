@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
 
 @Repository
-public interface CatOwnerRepository extends JpaRepository<CatOwner, Long>, JpaSpecificationExecutor<CatOwner> {
+public interface CatOwnerRepository extends JpaRepository<CatOwner, Long>,
+	JpaSpecificationExecutor<CatOwner> {
 
 }

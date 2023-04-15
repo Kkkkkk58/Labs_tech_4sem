@@ -16,13 +16,14 @@ public interface CatService {
 
 	CatDto get(Long id);
 
-	List<CatDto> getBy(String name, LocalDate dateOfBirth, String breed, FurColor furColor, Long ownerId, List<Long> friendsIds, Pageable pageable);
+	List<CatDto> getBy(String name, LocalDate dateOfBirth, String breed, FurColor furColor,
+		Long ownerId, List<Long> friendsIds, Pageable pageable);
 
 	void makeFriends(Long cat1Id, Long cat2Id);
 
 	void removeFriend(Long cat1Id, Long cat2Id);
 
-    boolean exists(Long id);
+	boolean exists(Long id);
 
 	CatDto update(CatUpdateDto catDto);
 }

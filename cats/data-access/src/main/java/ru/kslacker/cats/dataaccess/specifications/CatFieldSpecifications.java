@@ -11,7 +11,8 @@ public class CatFieldSpecifications {
 		if (name == null) {
 			return null;
 		} else {
-			return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("name"), name));
+			return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("name"),
+				name));
 		}
 	}
 
@@ -19,7 +20,8 @@ public class CatFieldSpecifications {
 		if (dateOfBirth == null) {
 			return null;
 		} else {
-			return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("dateOfBirth"), dateOfBirth));
+			return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("dateOfBirth"),
+				dateOfBirth));
 		}
 	}
 
@@ -27,7 +29,8 @@ public class CatFieldSpecifications {
 		if (breed == null) {
 			return null;
 		} else {
-			return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("breed"), breed));
+			return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("breed"),
+				breed));
 		}
 	}
 
@@ -35,7 +38,8 @@ public class CatFieldSpecifications {
 		if (furColor == null) {
 			return null;
 		} else {
-			return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("furColor"), furColor));
+			return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("furColor"),
+				furColor));
 		}
 	}
 
@@ -43,7 +47,8 @@ public class CatFieldSpecifications {
 		if (ownerId == null) {
 			return null;
 		} else {
-			return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("owner").get("id"), ownerId));
+			return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(
+				root.get("owner").get("id"), ownerId));
 		}
 	}
 
@@ -51,7 +56,8 @@ public class CatFieldSpecifications {
 		if (friend == null) {
 			return null;
 		} else {
-			return ((root, query, criteriaBuilder) -> criteriaBuilder.isMember(friend, root.get("friends")));
+			return ((root, query, criteriaBuilder) -> criteriaBuilder.isMember(friend,
+				root.get("friends")));
 		}
 	}
 }

@@ -1,8 +1,13 @@
 package ru.kslacker.cats.test.dataaccess;
 
+import static org.springframework.data.jpa.domain.Specification.where;
+
 import com.github.springtestdbunit.TransactionDbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 import jakarta.persistence.EntityManager;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,11 +25,6 @@ import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
 import ru.kslacker.cats.dataaccess.repositories.CatRepository;
 import ru.kslacker.cats.dataaccess.specifications.CatFieldSpecifications;
 import ru.kslacker.cats.dataaccess.specifications.CatOwnerFieldsSpecifications;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static org.springframework.data.jpa.domain.Specification.where;
 
 @DataJpaTest
 @TestPropertySource(properties = {
@@ -129,11 +129,13 @@ public class CatsDataTest {
 	@DatabaseSetup("classpath:dbUnit/data.xml")
 	public void searchCatWithDateOfBirthSpecification_searchWorks() {
 		LocalDate dateOfBirth = LocalDate.of(2007, 12, 12);
-		Specification<Cat> specification = where(CatFieldSpecifications.withDateOfBirth(dateOfBirth));
+		Specification<Cat> specification = where(
+			CatFieldSpecifications.withDateOfBirth(dateOfBirth));
 		List<Cat> cats = catRepository.findAll(specification);
 
 		Assertions.assertFalse(cats.isEmpty());
-		Assertions.assertTrue(cats.stream().allMatch(cat -> cat.getDateOfBirth().equals(dateOfBirth)));
+		Assertions.assertTrue(
+			cats.stream().allMatch(cat -> cat.getDateOfBirth().equals(dateOfBirth)));
 	}
 
 	@Test
@@ -166,7 +168,8 @@ public class CatsDataTest {
 		List<Cat> cats = catRepository.findAll(specification);
 
 		Assertions.assertFalse(cats.isEmpty());
-		Assertions.assertTrue(cats.stream().allMatch(cat -> cat.getOwner().getId().equals(ownerId)));
+		Assertions.assertTrue(
+			cats.stream().allMatch(cat -> cat.getOwner().getId().equals(ownerId)));
 	}
 
 	@Test
@@ -191,7 +194,8 @@ public class CatsDataTest {
 		List<Cat> catsWithColorAndOwner = catRepository.findAll(specification);
 
 		Assertions.assertTrue(catsWithColorAndOwner.stream()
-			.allMatch(cat -> cat.getFurColor().equals(color) && cat.getOwner().getId().equals(ownerId)));
+			.allMatch(
+				cat -> cat.getFurColor().equals(color) && cat.getOwner().getId().equals(ownerId)));
 		Assertions.assertNotEquals(catsWithColor, catsWithColorAndOwner);
 	}
 
@@ -203,18 +207,21 @@ public class CatsDataTest {
 		List<CatOwner> catOwners = catOwnerRepository.findAll(specification);
 
 		Assertions.assertFalse(catOwners.isEmpty());
-		Assertions.assertTrue(catOwners.stream().allMatch(catOwner -> catOwner.getName().equals(name)));
+		Assertions.assertTrue(
+			catOwners.stream().allMatch(catOwner -> catOwner.getName().equals(name)));
 	}
 
 	@Test
 	@DatabaseSetup("classpath:dbUnit/data.xml")
 	public void searchCatOwnerWithDateOfBirthSpecification_searchWorks() {
 		LocalDate dateOfBirth = LocalDate.of(2003, 5, 7);
-		Specification<CatOwner> specification = where(CatOwnerFieldsSpecifications.withDateOfBirth(dateOfBirth));
+		Specification<CatOwner> specification = where(
+			CatOwnerFieldsSpecifications.withDateOfBirth(dateOfBirth));
 		List<CatOwner> catOwners = catOwnerRepository.findAll(specification);
 
 		Assertions.assertFalse(catOwners.isEmpty());
-		Assertions.assertTrue(catOwners.stream().allMatch(catOwner -> catOwner.getDateOfBirth().equals(dateOfBirth)));
+		Assertions.assertTrue(
+			catOwners.stream().allMatch(catOwner -> catOwner.getDateOfBirth().equals(dateOfBirth)));
 	}
 
 	@Test
@@ -226,7 +233,8 @@ public class CatsDataTest {
 
 		Assertions.assertFalse(catOwners.isEmpty());
 		Assertions.assertEquals(1, catOwners.size());
-		Assertions.assertTrue(catOwners.stream().allMatch(catOwner -> catOwner.getCats().contains(cat)));
+		Assertions.assertTrue(
+			catOwners.stream().allMatch(catOwner -> catOwner.getCats().contains(cat)));
 
 	}
 
@@ -237,11 +245,13 @@ public class CatsDataTest {
 		LocalDate dateOfBirth = LocalDate.of(2003, 5, 7);
 		Specification<CatOwner> specification = where(CatOwnerFieldsSpecifications.withName(name));
 		List<CatOwner> catOwnersWithName = catOwnerRepository.findAll(specification);
-		specification = specification.and(CatOwnerFieldsSpecifications.withDateOfBirth(dateOfBirth));
+		specification = specification.and(
+			CatOwnerFieldsSpecifications.withDateOfBirth(dateOfBirth));
 		List<CatOwner> catOwnersWithNameAndDateOfBirth = catOwnerRepository.findAll(specification);
 
 		Assertions.assertTrue(catOwnersWithNameAndDateOfBirth.stream()
-			.allMatch(catOwner -> catOwner.getName().equals(name) && catOwner.getDateOfBirth().equals(dateOfBirth)));
+			.allMatch(catOwner -> catOwner.getName().equals(name) && catOwner.getDateOfBirth()
+				.equals(dateOfBirth)));
 		Assertions.assertNotEquals(catOwnersWithName, catOwnersWithNameAndDateOfBirth);
 	}
 
