@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+	<cat_owners
+		id="1"
+		date_of_birth="2003-05-07"
+		name="KSlacker"
+	/>
+	<cat_owners
+		id="2"
+		date_of_birth="2003-05-07"
+		name="MPacker"
+	/>
+	<cat_owners
+		id="3"
+		date_of_birth="2002-05-07"
+		name="KSlacker"
+	/>
+
+	<cats
+		id="1"
+		breed="Test"
+		date_of_birth="2009-09-09"
+		fur_color="BLACK"
+		name="Blackie"
+		owner_id="1"
+	/>
+	<cats
+		id="2"
+		breed="Test"
+		date_of_birth="2007-12-12"
+		fur_color="BROWN"
+		name="Brownie"
+		owner_id="1"
+	/>
+	<cats
+		id="3"
+		breed="Test"
+		date_of_birth="2005-05-15"
+		fur_color="BROWN"
+		name="Test"
+		owner_id="2"
+	/>
+	<cats
+		id="4"
+		breed="Test"
+		date_of_birth="2007-12-12"
+		fur_color="CINNAMON"
+		name="Test"
+		owner_id="1"
+	/>
+
+	<cat_friends
+		cat_id="1"
+		friend_id="2"
+	/>
+	<cat_friends
+		cat_id="2"
+		friend_id="1"
+	/>
+</dataset>
