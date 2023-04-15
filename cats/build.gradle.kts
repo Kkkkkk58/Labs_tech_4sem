@@ -18,6 +18,7 @@ dependencies {
 	annotationProcessor("com.github.therapi:therapi-runtime-javadoc-scribe:0.15.0")
 	implementation("org.liquibase:liquibase-core:4.20.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.hsqldb:hsqldb:2.7.1")
 }
 
 tasks.getByName<Test>("test") {
