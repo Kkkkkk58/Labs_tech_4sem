@@ -1,28 +1,35 @@
 plugins {
-    id("java-library")
-	id("org.hibernate.orm") version "6.2.0.CR3"
-	id("application")
+	id("java-library")
+	id("org.springframework.boot") version "3.0.5"
+	id("io.spring.dependency-management") version "1.1.0"
 }
 
-group = "ru.kslacker"
-version = "unspecified"
+group = "ru.kslacker.cats"
+version = "1.0.0-SNAPSHOT"
 
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 
 dependencies {
 	api(project(":cats:service"))
-	implementation("org.projectlombok:lombok:1.18.22")
 	annotationProcessor("org.projectlombok:lombok:1.18.26")
-	testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
-}
-
-application {
-	mainClass.set("ru.kslacker.cats.presentation.App")
+	api("org.springframework.boot:spring-boot-starter-web")
+	api("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+	api("com.github.therapi:therapi-runtime-javadoc:0.15.0")
+	annotationProcessor("com.github.therapi:therapi-runtime-javadoc-scribe:0.15.0")
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 tasks.getByName<Test>("test") {
-    useJUnitPlatform()
+	useJUnitPlatform()
+}
+
+
+tasks.getByName("bootJar") {
+	enabled = false
+}
+
+tasks.getByName("jar") {
+	enabled = true
 }

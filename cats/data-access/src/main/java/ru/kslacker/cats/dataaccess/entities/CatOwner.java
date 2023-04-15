@@ -1,23 +1,33 @@
 package ru.kslacker.cats.dataaccess.entities;
 
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.Hibernate;
-import ru.kslacker.cats.dataaccess.exceptions.CatOwnerException;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.Hibernate;
+import ru.kslacker.cats.dataaccess.exceptions.CatOwnerException;
 
 @Entity
 @Table(name = "cat_owners")
 @Getter
-@Setter(AccessLevel.PROTECTED)
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
 public class CatOwner {
 
 	@Id
@@ -32,12 +42,13 @@ public class CatOwner {
 	private LocalDate dateOfBirth;
 
 	@OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-	private List<Cat> cats;
+	@Setter(AccessLevel.PROTECTED)
+	@ToString.Exclude
+	private List<Cat> cats = new ArrayList<>();
 
 	public CatOwner(String name, LocalDate dateOfBirth) {
 		this.name = name;
 		this.dateOfBirth = dateOfBirth;
-		this.cats = new ArrayList<>();
 	}
 
 	public List<Cat> getCats() {
@@ -46,11 +57,13 @@ public class CatOwner {
 
 	public void addCat(Cat cat) {
 		if (cats.contains(cat)) {
-			throw CatOwnerException.catAlreadyExists(this, cat);
+			return;
 		}
 
 		cats.add(cat);
-		cat.setOwner(this);
+		if (cat.getOwner() != this) {
+			cat.setOwner(this);
+		}
 	}
 
 	public void removeCat(Cat cat) {

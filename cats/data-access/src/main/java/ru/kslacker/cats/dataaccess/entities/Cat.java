@@ -1,21 +1,37 @@
 package ru.kslacker.cats.dataaccess.entities;
 
-import jakarta.persistence.*;
-import lombok.*;
-import lombok.ToString.Exclude;
-import org.hibernate.Hibernate;
-import ru.kslacker.cats.common.models.FurColor;
-import ru.kslacker.cats.dataaccess.exceptions.CatException;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.Hibernate;
+import ru.kslacker.cats.common.models.FurColor;
+import ru.kslacker.cats.dataaccess.exceptions.CatException;
 
 @Entity
 @Table(name = "cats")
 @Getter
-@Setter(AccessLevel.PROTECTED)
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 public class Cat {
@@ -40,26 +56,30 @@ public class Cat {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "owner_id")
-	@Setter(AccessLevel.PACKAGE)
-	@Exclude
+	@ToString.Exclude
 	private CatOwner owner;
 
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "cat_friends",
 		joinColumns = @JoinColumn(name = "cat_id"),
 		inverseJoinColumns = @JoinColumn(name = "friend_id"))
-	@Exclude
-	private List<Cat> friends;
+	@Setter(AccessLevel.PROTECTED)
+	@ToString.Exclude
+	private List<Cat> friends = new ArrayList<>();
 
-	public Cat(String name, LocalDate dateOfBirth, String breed, FurColor furColor,
+	public Cat(
+		String name,
+		LocalDate dateOfBirth,
+		String breed,
+		FurColor furColor,
 		CatOwner owner) {
+
 		this.name = name;
 		this.dateOfBirth = dateOfBirth;
 		this.breed = breed;
 		this.furColor = furColor;
 		this.owner = owner;
 		this.owner.addCat(this);
-		this.friends = new ArrayList<>();
 	}
 
 	public List<Cat> getFriends() {
@@ -80,11 +100,20 @@ public class Cat {
 	}
 
 	public void removeFriend(Cat cat) {
-		if (!friends.remove(cat) | !cat.friends.remove(this)) {
+		if (!friends.remove(cat)) {
 			throw CatException.friendNotFound(cat);
 		}
+
+		cat.friends.remove(this);
 	}
 
+	public void setOwner(@Nullable CatOwner owner) {
+		this.owner = owner;
+
+		if (owner != null) {
+			owner.addCat(this);
+		}
+	}
 
 	@Override
 	public boolean equals(Object o) {

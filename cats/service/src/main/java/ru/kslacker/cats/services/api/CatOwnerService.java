@@ -1,26 +1,23 @@
 package ru.kslacker.cats.services.api;
 
-import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import ru.kslacker.cats.services.dto.CatOwnerDto;
-
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
+import org.springframework.data.domain.Pageable;
+import ru.kslacker.cats.services.dto.CatOwnerDto;
+import ru.kslacker.cats.services.dto.CatOwnerUpdateDto;
 
 public interface CatOwnerService {
 
 	CatOwnerDto create(String name, LocalDate dateOfBirth);
 
-	void remove(Long id);
+	void delete(Long id);
 
 	CatOwnerDto get(Long id);
 
-	List<CatOwnerDto> getByName(String name);
+	List<CatOwnerDto> getBy(String name, LocalDate dateOfBirth, List<Long> catsIds,
+		Pageable pageable);
 
-	List<CatOwnerDto> getByDateOfBirth(LocalDate dateOfBirth);
+	boolean exists(Long id);
 
-	List<CatOwnerDto> getBy(Predicate<CatOwner> condition);
-
-	List<CatOwnerDto> getBy(Map<String, Object> paramSet);
+	CatOwnerDto update(CatOwnerUpdateDto catOwnerDto);
 }
