@@ -18,6 +18,9 @@ dependencies {
 	implementation("org.postgresql:postgresql:42.2.27")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("com.h2database:h2:2.1.214")
+	testImplementation("org.liquibase:liquibase-core:4.20.0")
+	testImplementation("com.github.springtestdbunit:spring-test-dbunit:1.3.0")
+	testImplementation("org.dbunit:dbunit:2.6.0")
 }
 
 tasks.getByName<Test>("test") {

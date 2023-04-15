@@ -4,10 +4,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
-// TODO tests
-// TODO Hide swagger on release versions (profiles!!) and hide not rest controllers
-// TODO html pages + controllers
-
 @SpringBootApplication
 public class CatsApplication {
 

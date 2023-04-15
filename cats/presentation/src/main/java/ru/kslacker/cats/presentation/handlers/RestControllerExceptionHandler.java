@@ -17,8 +17,6 @@ import ru.kslacker.cats.services.exceptions.EntityException;
 import ru.kslacker.cats.presentation.responses.ValidationErrorResponse;
 import ru.kslacker.cats.presentation.responses.Violation;
 
-
-// TODO add err page and bare ControllerAdvice
 @RestControllerAdvice
 public class RestControllerExceptionHandler {
 
