@@ -3,11 +3,12 @@ package ru.kslacker.cats.services.dto;
 import java.time.LocalDate;
 import lombok.Builder;
 import ru.kslacker.cats.services.validation.ValidCatOwnerId;
-import ru.kslacker.cats.services.validation.ValidUpdateName;
+import ru.kslacker.cats.services.validation.UpdateDate;
+import ru.kslacker.cats.services.validation.UpdateName;
 
 @Builder
 public record CatOwnerUpdateDto(@ValidCatOwnerId Long id,
-								@ValidUpdateName String name,
-								LocalDate dateOfBirth) {
+								@UpdateName String name,
+								@UpdateDate LocalDate dateOfBirth) {
 
 }

@@ -3,10 +3,11 @@ package ru.kslacker.cats.services.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class UpdateNameValidator implements ConstraintValidator<UpdateName, String> {
+public class PasswordValidator implements ConstraintValidator<Password, String> {
 
+	// TODO
 	@Override
 	public boolean isValid(String value, ConstraintValidatorContext context) {
-		return value == null || !value.isBlank();
+		return true;
 	}
 }

@@ -8,13 +8,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = UpdateCatOwnerIdValidator.class)
+@Constraint(validatedBy = UpdateDateValidator.class)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface ValidUpdateCatOwnerId {
-
-	String message() default "Associated with cat owner id is invalid";
+public @interface UpdateDate {
+	String message() default "Date is invalid";
 
 	Class<?>[] groups() default {};
 

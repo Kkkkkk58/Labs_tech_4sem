@@ -8,13 +8,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = UpdateNameValidator.class)
+@Constraint(validatedBy = PasswordValidator.class)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface ValidUpdateName {
-
-	String message() default "Name is invalid";
+public @interface Password {
+	String message() default "Password format is invalid";
 
 	Class<?>[] groups() default {};
 

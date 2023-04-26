@@ -1,3 +1,5 @@
 databaseChangeLog:
     -   include:
             file: db/changelog/changes/init.xml
+    -   include:
+            file: db/changelog/changes/add_user.xml

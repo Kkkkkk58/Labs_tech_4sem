@@ -9,8 +9,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 public class CatsApplicationTest {
 
-//	@Test
-//	void applicationContextLoads(ApplicationContext context) {
-//		assertThat(context).isNotNull();
-//	}
+	@Test
+	void applicationContextLoads(ApplicationContext context) {
+		assertThat(context).isNotNull();
+	}
 }

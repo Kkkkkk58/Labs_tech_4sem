@@ -32,3 +32,6 @@ bin/
 ### Auto-generated gradle folders ###
 .gradle/
 build/
+
+### Auto-generated Liquibase sources ###
+.jpb/

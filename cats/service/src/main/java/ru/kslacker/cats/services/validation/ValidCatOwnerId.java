@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface ValidCatOwnerId {
 
-	String message() default "Cat owner id is invalid";
+	String message() default "Cat owner getId is invalid";
 
 	Class<?>[] groups() default {};
 

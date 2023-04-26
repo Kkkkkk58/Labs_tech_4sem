@@ -12,6 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,11 +25,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.kslacker.cats.common.models.UserRole;
 import ru.kslacker.cats.presentation.models.catowners.CatOwnerModel;
 import ru.kslacker.cats.presentation.validation.ValidationGroup;
 import ru.kslacker.cats.services.api.CatOwnerService;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
 import ru.kslacker.cats.services.dto.CatOwnerUpdateDto;
+import ru.kslacker.cats.services.security.UserDetailsImpl;
 
 @RestController
 @RequestMapping("/api/cat-owner")
@@ -49,29 +54,33 @@ public class RestCatOwnerController {
 	 */
 	@PostMapping(produces = "application/json")
 	@Validated(ValidationGroup.OnCreate.class)
+	@PreAuthorize("hasRole(T(ru.kslacker.cats.common.models.UserRole).ADMIN)")
 	public ResponseEntity<CatOwnerDto> create(@Valid @RequestBody CatOwnerModel owner) {
 		return new ResponseEntity<>(service.create(owner.name(), owner.dateOfBirth()),
 			HttpStatus.CREATED);
 	}
 
 	/**
-	 * Get cat owner by id
+	 * Get cat owner by getId
 	 *
-	 * @param id Owner's id
-	 * @return Information about the cat with given id
+	 * @param id Owner's getId
+	 * @return Information about the cat with given getId
 	 */
 	@GetMapping(value = "{id}", params = {"id"}, produces = "application/json")
 	public ResponseEntity<CatOwnerDto> get(@Positive @PathVariable Long id) {
+
+		ValidateUser(id);
 		return ResponseEntity.ok(service.get(id));
 	}
 
 	/**
-	 * Delete cat owner with given id
+	 * Delete cat owner with given getId
 	 *
-	 * @param id Owner's id
+	 * @param id Owner's getId
 	 * @return None
 	 */
 	@DeleteMapping("{id}")
+	@PreAuthorize("hasRole(T(ru.kslacker.cats.common.models.UserRole).ADMIN)")
 	public ResponseEntity<?> delete(@Positive @PathVariable Long id) {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
@@ -80,7 +89,7 @@ public class RestCatOwnerController {
 	/**
 	 * Update existing owner with provided data
 	 *
-	 * @param id    Owner's id
+	 * @param id    Owner's getId
 	 * @param owner Structure of update
 	 * @return Information about the updated entity
 	 */
@@ -89,6 +98,7 @@ public class RestCatOwnerController {
 	public ResponseEntity<CatOwnerDto> update(@Positive @PathVariable Long id,
 		@Valid @RequestBody CatOwnerModel owner) {
 
+		ValidateUser(id);
 		CatOwnerDto ownerDto = service.update(
 			new CatOwnerUpdateDto(id, owner.name(), owner.dateOfBirth()));
 
@@ -108,6 +118,7 @@ public class RestCatOwnerController {
 	 * @return List of owners satisfying filter conditions
 	 */
 	@GetMapping(produces = "application/json")
+	@PreAuthorize("hasRole(T(ru.kslacker.cats.common.models.UserRole).ADMIN)")
 	public ResponseEntity<List<CatOwnerDto>> getBy(
 		@RequestParam(required = false) String name,
 		@RequestParam(value = "date-of-birth", required = false) LocalDate dateOfBirth,
@@ -120,5 +131,24 @@ public class RestCatOwnerController {
 			(sort == null) ? PageRequest.of(page, size) : PageRequest.of(page, size, sort);
 
 		return ResponseEntity.ok(service.getBy(name, dateOfBirth, catsIds, pageable));
+	}
+
+	private void ValidateUser(Long ownerId) {
+		if (!isAdmin() || !getUserOwnerId().equals(ownerId)) {
+			throw new RuntimeException(); // TODO
+		}
+	}
+
+	private Long getUserOwnerId() {
+		return getUserDetails().getOwnerId();
+	}
+
+	private boolean isAdmin() {
+		return getUserDetails().getAuthorities().contains(UserRole.ADMIN);
+	}
+
+	private static UserDetailsImpl getUserDetails() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		return (UserDetailsImpl) authentication.getPrincipal();
 	}
 }

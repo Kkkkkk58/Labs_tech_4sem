@@ -136,6 +136,7 @@ public class CatServiceImpl implements CatService {
 	}
 
 	@Override
+	@Transactional
 	public CatDto update(CatUpdateDto catDto) {
 
 		validateUpdateDto(catDto);
@@ -154,9 +155,6 @@ public class CatServiceImpl implements CatService {
 		if (catDto.furColor() != null) {
 			cat.setFurColor(catDto.furColor());
 		}
-		if (catDto.ownerId() != null) {
-			cat.setOwner(getCatOwnerById(catDto.ownerId()));
-		}
 
 		return catRepository.save(cat).asDto();
 	}
@@ -171,10 +169,5 @@ public class CatServiceImpl implements CatService {
 	private Cat getCatById(Long id) {
 		return catRepository.findById(id)
 			.orElseThrow(() -> EntityException.entityNotFound(Cat.class, id));
-	}
-
-	private CatOwner getCatOwnerById(Long ownerId) {
-		return catOwnerRepository.findById(ownerId)
-			.orElseThrow(() -> EntityException.entityNotFound(CatOwner.class, ownerId));
 	}
 }

@@ -8,13 +8,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = CatIdValidator.class)
+@Constraint(validatedBy = UpdateNameValidator.class)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface ValidCatId {
+public @interface UpdateName {
 
-	String message() default "Cat getId is invalid";
+	String message() default "Name is invalid";
 
 	Class<?>[] groups() default {};
 

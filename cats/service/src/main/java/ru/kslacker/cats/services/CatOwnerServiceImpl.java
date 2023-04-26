@@ -92,6 +92,7 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 	}
 
 	@Override
+	@Transactional
 	public CatOwnerDto update(CatOwnerUpdateDto catOwnerDto) {
 
 		validateUpdateDto(catOwnerDto);
