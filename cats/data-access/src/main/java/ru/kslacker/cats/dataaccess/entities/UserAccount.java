@@ -27,13 +27,13 @@ import ru.kslacker.cats.dataaccess.models.PasswordUserBuilder;
 import ru.kslacker.cats.dataaccess.models.UsernameUserBuilder;
 
 @Entity
-@Table(name = "users")
+@Table(name = "accounts")
 @Getter
 @Setter(AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString
-public class User {
+public class UserAccount {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -70,7 +70,7 @@ public class User {
 	@Column(name = "credentials_expiration_date")
 	private LocalDate credentialsExpirationDate = null;
 
-	public User(String username, String email, String password, CatOwner owner, UserRole role,
+	public UserAccount(String username, String email, String password, CatOwner owner, UserRole role,
 		boolean enabled, boolean locked, LocalDate accountExpirationDate,
 		LocalDate credentialsExpirationDate) {
 		this.username = username;
@@ -96,8 +96,8 @@ public class User {
 		if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
 			return false;
 		}
-		User user = (User) o;
-		return id != null && Objects.equals(id, user.id);
+		UserAccount userAccount = (UserAccount) o;
+		return id != null && Objects.equals(id, userAccount.id);
 	}
 
 	@Override
@@ -174,12 +174,12 @@ public class User {
 		}
 
 		@Override
-		public User build() {
+		public UserAccount build() {
 			if (username == null || password == null) {
 				throw new RuntimeException(); // TODO
 			}
 
-			return new User(username, email, password, owner, role, enabled, locked, accountExpirationDate, credentialsExpirationDate);
+			return new UserAccount(username, email, password, owner, role, enabled, locked, accountExpirationDate, credentialsExpirationDate);
 		}
 	}
 }

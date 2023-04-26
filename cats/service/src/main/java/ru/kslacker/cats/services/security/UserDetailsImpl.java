@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import ru.kslacker.cats.dataaccess.entities.User;
+import ru.kslacker.cats.dataaccess.entities.UserAccount;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Set;
@@ -12,53 +12,53 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserDetailsImpl implements UserDetails {
 
-	private final User user;
+	private final UserAccount userAccount;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return Set.of(user.getRole());
+		return Set.of(userAccount.getRole());
 	}
 
 	@Override
 	public String getPassword() {
-		return user.getPassword();
+		return userAccount.getPassword();
 	}
 
 	@Override
 	public String getUsername() {
-		return user.getUsername();
+		return userAccount.getUsername();
 	}
 
 	@Override
 	public boolean isAccountNonExpired() {
-		return isNonExpired(user.getAccountExpirationDate());
+		return isNonExpired(userAccount.getAccountExpirationDate());
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
-		return !user.isLocked();
+		return !userAccount.isLocked();
 	}
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		return isNonExpired(user.getCredentialsExpirationDate());
+		return isNonExpired(userAccount.getCredentialsExpirationDate());
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return user.isEnabled();
+		return userAccount.isEnabled();
 	}
 
 	public String getEmail() {
-		return user.getEmail();
+		return userAccount.getEmail();
 	}
 
 	public Long getId() {
-		return user.getId();
+		return userAccount.getId();
 	}
 
 	public Long getOwnerId() {
-		CatOwner owner = user.getOwner();
+		CatOwner owner = userAccount.getOwner();
 		return (owner == null) ? null : owner.getId();
 	}
 

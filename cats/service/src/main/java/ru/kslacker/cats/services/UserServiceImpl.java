@@ -6,7 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import ru.kslacker.cats.dataaccess.entities.User;
+import ru.kslacker.cats.dataaccess.entities.UserAccount;
 import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
 import ru.kslacker.cats.dataaccess.repositories.UserRepository;
 import ru.kslacker.cats.services.api.UserService;
@@ -37,14 +37,14 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public UserDto create(String username, String email, String password, Long ownerId) {
 		CatOwner owner = getOwnerById(ownerId);
-		User user = User.builder()
+		UserAccount userAccount = UserAccount.builder()
 			.withUsername(username)
 			.withPassword(passwordEncoder.encode(password))
 			.withEmail(email)
 			.withOwner(owner)
 			.build();
 
-		return userRepository.saveAndFlush(user).asDto();
+		return userRepository.saveAndFlush(userAccount).asDto();
 	}
 
 	@Override
@@ -55,14 +55,14 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public void delete(Long id) {
-		User user = getUserById(id);
-		userRepository.delete(user);
+		UserAccount userAccount = getUserById(id);
+		userRepository.delete(userAccount);
 	}
 
-	public User getUserById(Long id) {
+	public UserAccount getUserById(Long id) {
 		return userRepository
 			.findById(id)
-			.orElseThrow(() -> EntityException.entityNotFound(User.class, id));
+			.orElseThrow(() -> EntityException.entityNotFound(UserAccount.class, id));
 	}
 
 	public CatOwner getOwnerById(Long id) {

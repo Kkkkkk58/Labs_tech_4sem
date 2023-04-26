@@ -2,7 +2,7 @@ package ru.kslacker.cats.dataaccess.models;
 
 import ru.kslacker.cats.common.models.UserRole;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import ru.kslacker.cats.dataaccess.entities.User;
+import ru.kslacker.cats.dataaccess.entities.UserAccount;
 import java.time.LocalDate;
 
 public interface OptionalInfoUserBuilder {
@@ -14,5 +14,5 @@ public interface OptionalInfoUserBuilder {
 	OptionalInfoUserBuilder isEnabled(boolean enabled);
 	OptionalInfoUserBuilder isLocked(boolean locked);
 
-	User build();
+	UserAccount build();
 }
