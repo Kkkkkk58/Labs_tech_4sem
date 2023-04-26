@@ -25,7 +25,6 @@ import ru.kslacker.cats.services.dto.CatOwnerDto;
 @Component
 public class CatsServicesTest {
 
-	private Validator validator;
 	private CatRepository catRepository;
 
 	private CatOwnerRepository catOwnerRepository;
@@ -38,7 +37,7 @@ public class CatsServicesTest {
 	public void setup() {
 		catRepository = mock(CatRepository.class);
 		catOwnerRepository = mock(CatOwnerRepository.class);
-		validator = mock(Validator.class);
+		Validator validator = mock(Validator.class);
 
 		catService = new CatServiceImpl(validator, catRepository, catOwnerRepository);
 		catOwnerService = new CatOwnerServiceImpl(validator, catOwnerRepository, catRepository);
