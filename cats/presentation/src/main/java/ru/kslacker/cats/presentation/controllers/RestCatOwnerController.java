@@ -1,5 +1,6 @@
 package ru.kslacker.cats.presentation.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -34,8 +35,9 @@ import ru.kslacker.cats.services.dto.CatOwnerUpdateDto;
 import ru.kslacker.cats.services.security.UserDetailsImpl;
 
 @RestController
-@RequestMapping("/api/cat-owner")
+@RequestMapping("/api/v3/cat-owner")
 @Tag(name = "CatOwner", description = "Cat owners' management api")
+@SecurityRequirement(name = "BasicAuth")
 @Validated
 public class RestCatOwnerController {
 

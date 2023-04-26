@@ -1,5 +1,6 @@
 package ru.kslacker.cats.presentation.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -35,8 +36,9 @@ import ru.kslacker.cats.services.dto.CatUpdateDto;
 import ru.kslacker.cats.services.security.UserDetailsImpl;
 
 @RestController
-@RequestMapping("/api/cat")
+@RequestMapping("/api/v3/cat")
 @Tag(name = "Cat", description = "Cat management api")
+@SecurityRequirement(name = "BasicAuth")
 @Validated
 public class RestCatController {
 
@@ -69,7 +71,7 @@ public class RestCatController {
 	}
 
 	/**
-	 * Delete cat by getId
+	 * Delete cat by id
 	 *
 	 * @param id Id of the cat to delete
 	 * @return None
