@@ -15,8 +15,11 @@ dependencies {
 	api(project(":cats:service"))
 	annotationProcessor("org.projectlombok:lombok:1.18.26")
 	api("org.springframework.boot:spring-boot-starter-web")
+	api("org.springframework.boot:spring-boot-starter-thymeleaf")
+	api("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
 	api("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
 	api("com.github.therapi:therapi-runtime-javadoc:0.15.0")
+	api("org.webjars:bootstrap:5.2.3")
 	annotationProcessor("com.github.therapi:therapi-runtime-javadoc-scribe:0.15.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

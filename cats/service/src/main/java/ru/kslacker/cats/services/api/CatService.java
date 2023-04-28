@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.services.dto.CatDto;
-import ru.kslacker.cats.services.dto.CatUpdateDto;
+import ru.kslacker.cats.services.models.CatUpdateModel;
 
 public interface CatService {
 
@@ -25,5 +25,5 @@ public interface CatService {
 
 	boolean exists(Long id);
 
-	CatDto update(CatUpdateDto catDto);
+	CatDto update(CatUpdateModel catDto);
 }

@@ -1,5 +1,5 @@
 package ru.kslacker.cats.services.dto;
 
-public record UserDto(Long id, String username) {
+public record UserDto(Long id, String username, CatOwnerDto ownerInfo) {
 
 }

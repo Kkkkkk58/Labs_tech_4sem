@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
-import ru.kslacker.cats.services.dto.CatOwnerUpdateDto;
+import ru.kslacker.cats.services.models.CatOwnerUpdateModel;
 
 public interface CatOwnerService {
 
@@ -19,5 +19,5 @@ public interface CatOwnerService {
 
 	boolean exists(Long id);
 
-	CatOwnerDto update(CatOwnerUpdateDto catOwnerDto);
+	CatOwnerDto update(CatOwnerUpdateModel catOwnerDto);
 }

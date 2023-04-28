@@ -1,12 +1,12 @@
 package ru.kslacker.cats.services;
 
 import static org.springframework.data.jpa.domain.Specification.where;
-import static ru.kslacker.cats.dataaccess.specifications.CatFieldSpecifications.withBreed;
-import static ru.kslacker.cats.dataaccess.specifications.CatFieldSpecifications.withDateOfBirth;
-import static ru.kslacker.cats.dataaccess.specifications.CatFieldSpecifications.withFriend;
-import static ru.kslacker.cats.dataaccess.specifications.CatFieldSpecifications.withFurColor;
-import static ru.kslacker.cats.dataaccess.specifications.CatFieldSpecifications.withName;
-import static ru.kslacker.cats.dataaccess.specifications.CatFieldSpecifications.withOwnerId;
+import static ru.kslacker.cats.dataaccess.specifications.CatSpecifications.withBreed;
+import static ru.kslacker.cats.dataaccess.specifications.CatSpecifications.withDateOfBirth;
+import static ru.kslacker.cats.dataaccess.specifications.CatSpecifications.withFriend;
+import static ru.kslacker.cats.dataaccess.specifications.CatSpecifications.withFurColor;
+import static ru.kslacker.cats.dataaccess.specifications.CatSpecifications.withName;
+import static ru.kslacker.cats.dataaccess.specifications.CatSpecifications.withOwnerId;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -30,7 +30,7 @@ import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
 import ru.kslacker.cats.dataaccess.repositories.CatRepository;
 import ru.kslacker.cats.services.api.CatService;
 import ru.kslacker.cats.services.dto.CatDto;
-import ru.kslacker.cats.services.dto.CatUpdateDto;
+import ru.kslacker.cats.services.models.CatUpdateModel;
 import ru.kslacker.cats.services.exceptions.EntityException;
 import ru.kslacker.cats.services.mapping.CatMapping;
 import ru.kslacker.cats.services.mapping.StreamMapping;
@@ -137,7 +137,7 @@ public class CatServiceImpl implements CatService {
 
 	@Override
 	@Transactional
-	public CatDto update(CatUpdateDto catDto) {
+	public CatDto update(CatUpdateModel catDto) {
 
 		validateUpdateDto(catDto);
 
@@ -159,8 +159,8 @@ public class CatServiceImpl implements CatService {
 		return catRepository.save(cat).asDto();
 	}
 
-	private void validateUpdateDto(CatUpdateDto catDto) {
-		Set<ConstraintViolation<CatUpdateDto>> violations = validator.validate(catDto);
+	private void validateUpdateDto(CatUpdateModel catDto) {
+		Set<ConstraintViolation<CatUpdateModel>> violations = validator.validate(catDto);
 		if (!violations.isEmpty()) {
 			throw new ConstraintViolationException(violations);
 		}

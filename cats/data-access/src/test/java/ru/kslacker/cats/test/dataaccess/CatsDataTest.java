@@ -19,12 +19,17 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import ru.kslacker.cats.common.models.FurColor;
+import ru.kslacker.cats.common.models.UserRole;
 import ru.kslacker.cats.dataaccess.entities.Cat;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
+import ru.kslacker.cats.dataaccess.entities.UserAccount;
+import ru.kslacker.cats.dataaccess.exceptions.UserBuilderException;
 import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
 import ru.kslacker.cats.dataaccess.repositories.CatRepository;
-import ru.kslacker.cats.dataaccess.specifications.CatFieldSpecifications;
-import ru.kslacker.cats.dataaccess.specifications.CatOwnerFieldsSpecifications;
+import ru.kslacker.cats.dataaccess.repositories.UserRepository;
+import ru.kslacker.cats.dataaccess.specifications.CatSpecifications;
+import ru.kslacker.cats.dataaccess.specifications.CatOwnerSpecifications;
+import ru.kslacker.cats.dataaccess.specifications.UserSpecifications;
 
 @DataJpaTest
 @TestPropertySource(properties = {
@@ -41,7 +46,7 @@ public class CatsDataTest {
 	private final EntityManager entityManager;
 	private final CatRepository catRepository;
 	private final CatOwnerRepository catOwnerRepository;
-
+	private final UserRepository userRepository;
 
 	@Autowired
 	public CatsDataTest(
@@ -49,13 +54,15 @@ public class CatsDataTest {
 		JdbcTemplate jdbcTemplate,
 		EntityManager entityManager,
 		CatRepository catRepository,
-		CatOwnerRepository catOwnerRepository) {
+		CatOwnerRepository catOwnerRepository,
+		UserRepository userRepository) {
 
 		this.dataSource = dataSource;
 		this.jdbcTemplate = jdbcTemplate;
 		this.entityManager = entityManager;
 		this.catRepository = catRepository;
 		this.catOwnerRepository = catOwnerRepository;
+		this.userRepository = userRepository;
 	}
 
 	@Test
@@ -65,6 +72,7 @@ public class CatsDataTest {
 		Assertions.assertNotNull(entityManager);
 		Assertions.assertNotNull(catRepository);
 		Assertions.assertNotNull(catOwnerRepository);
+		Assertions.assertNotNull(userRepository);
 	}
 
 	@Test
@@ -101,24 +109,90 @@ public class CatsDataTest {
 	}
 
 	@Test
+	public void createUserWithCredentialsAndDefaults_userSavedWithDefaults() {
+		String username = "kslacker";
+		String password = "123654";
+
+		UserAccount user = UserAccount.builder()
+			.withUsername(username)
+			.withPassword(password)
+			.build();
+
+		user = userRepository.saveAndFlush(user);
+
+		Assertions.assertNotNull(user.getId());
+		Assertions.assertEquals(username, user.getUsername());
+		Assertions.assertNull(user.getEmail());
+		Assertions.assertEquals(password, user.getPassword());
+		Assertions.assertEquals(UserRole.USER, user.getRole());
+		Assertions.assertTrue(user.isEnabled());
+		Assertions.assertFalse(user.isLocked());
+		Assertions.assertNull(user.getAccountExpirationDate());
+		Assertions.assertNull(user.getCredentialsExpirationDate());
+	}
+
+	@Test
+	public void createUserWithCustomParameters_userSavedWithParameters() {
+		String username = "kslacker";
+		String password = "123654";
+		UserRole role = UserRole.ADMIN;
+		boolean locked = true;
+		boolean enabled = false;
+		LocalDate accountExpirationDate = LocalDate.now();
+
+		UserAccount user = UserAccount.builder()
+			.withUsername(username)
+			.withPassword(password)
+			.withRole(role)
+			.isEnabled(enabled)
+			.isLocked(locked)
+			.withAccountExpirationDate(accountExpirationDate)
+			.build();
+
+		user = userRepository.saveAndFlush(user);
+
+		Assertions.assertNotNull(user.getId());
+		Assertions.assertEquals(username, user.getUsername());
+		Assertions.assertNull(user.getEmail());
+		Assertions.assertEquals(password, user.getPassword());
+		Assertions.assertEquals(role, user.getRole());
+		Assertions.assertEquals(enabled, user.isEnabled());
+		Assertions.assertEquals(locked, user.isLocked());
+		Assertions.assertEquals(accountExpirationDate, user.getAccountExpirationDate());
+		Assertions.assertNull(user.getCredentialsExpirationDate());
+	}
+
+	@Test
+	public void createUserWithoutRequiredField_throwsException() {
+
+		Assertions.assertThrows(UserBuilderException.class, () -> UserAccount.builder()
+			.withUsername(null)
+			.withPassword("test")
+			.build());
+	}
+
+	@Test
 	@DatabaseSetup("classpath:dbUnit/data.xml")
 	public void initializedEntities_entitiesAreFound() {
 		Optional<CatOwner> owner = catOwnerRepository.findById(1L);
 		Optional<Cat> cat1 = catRepository.findById(1L);
 		Optional<Cat> cat2 = catRepository.findById(2L);
+		Optional<UserAccount> user = userRepository.findById(1L);
 
 		Assertions.assertTrue(owner.isPresent());
 		Assertions.assertTrue(cat1.isPresent());
 		Assertions.assertTrue(cat2.isPresent());
+		Assertions.assertTrue(user.isPresent());
 		Assertions.assertEquals(owner.get(), cat1.get().getOwner());
 		Assertions.assertTrue(cat1.get().getFriends().contains(cat2.get()));
+		Assertions.assertEquals(owner.get(), user.get().getOwner());
 	}
 
 	@Test
 	@DatabaseSetup("classpath:dbUnit/data.xml")
 	public void searchCatWithNameSpecification_searchWorks() {
 		String name = "Test";
-		Specification<Cat> specification = where(CatFieldSpecifications.withName(name));
+		Specification<Cat> specification = where(CatSpecifications.withName(name));
 		List<Cat> cats = catRepository.findAll(specification);
 
 		Assertions.assertFalse(cats.isEmpty());
@@ -130,7 +204,7 @@ public class CatsDataTest {
 	public void searchCatWithDateOfBirthSpecification_searchWorks() {
 		LocalDate dateOfBirth = LocalDate.of(2007, 12, 12);
 		Specification<Cat> specification = where(
-			CatFieldSpecifications.withDateOfBirth(dateOfBirth));
+			CatSpecifications.withDateOfBirth(dateOfBirth));
 		List<Cat> cats = catRepository.findAll(specification);
 
 		Assertions.assertFalse(cats.isEmpty());
@@ -142,7 +216,7 @@ public class CatsDataTest {
 	@DatabaseSetup("classpath:dbUnit/data.xml")
 	public void searchCatWithBreedSpecification_searchWorks() {
 		String breed = "Test";
-		Specification<Cat> specification = where(CatFieldSpecifications.withBreed(breed));
+		Specification<Cat> specification = where(CatSpecifications.withBreed(breed));
 		List<Cat> cats = catRepository.findAll(specification);
 
 		Assertions.assertFalse(cats.isEmpty());
@@ -153,7 +227,7 @@ public class CatsDataTest {
 	@DatabaseSetup("classpath:dbUnit/data.xml")
 	public void searchCatWithFurColorSpecification_searchWorks() {
 		FurColor color = FurColor.BROWN;
-		Specification<Cat> specification = where(CatFieldSpecifications.withFurColor(color));
+		Specification<Cat> specification = where(CatSpecifications.withFurColor(color));
 		List<Cat> cats = catRepository.findAll(specification);
 
 		Assertions.assertFalse(cats.isEmpty());
@@ -164,7 +238,7 @@ public class CatsDataTest {
 	@DatabaseSetup("classpath:dbUnit/data.xml")
 	public void searchCatWithOwnerIdSpecification_searchWorks() {
 		Long ownerId = 1L;
-		Specification<Cat> specification = where(CatFieldSpecifications.withOwnerId(ownerId));
+		Specification<Cat> specification = where(CatSpecifications.withOwnerId(ownerId));
 		List<Cat> cats = catRepository.findAll(specification);
 
 		Assertions.assertFalse(cats.isEmpty());
@@ -176,7 +250,7 @@ public class CatsDataTest {
 	@DatabaseSetup("classpath:dbUnit/data.xml")
 	public void searchCatWithFriendSpecification_searchWorks() {
 		Cat friend = catRepository.findById(2L).orElseThrow();
-		Specification<Cat> specification = where(CatFieldSpecifications.withFriend(friend));
+		Specification<Cat> specification = where(CatSpecifications.withFriend(friend));
 		List<Cat> cats = catRepository.findAll(specification);
 
 		Assertions.assertFalse(cats.isEmpty());
@@ -187,10 +261,10 @@ public class CatsDataTest {
 	@DatabaseSetup("classpath:dbUnit/data.xml")
 	public void searchCatWithCustomCriteriaSpecification_searchWorks() {
 		FurColor color = FurColor.BROWN;
-		Specification<Cat> specification = where(CatFieldSpecifications.withFurColor(color));
+		Specification<Cat> specification = where(CatSpecifications.withFurColor(color));
 		List<Cat> catsWithColor = catRepository.findAll(specification);
 		Long ownerId = 1L;
-		specification = specification.and(CatFieldSpecifications.withOwnerId(ownerId));
+		specification = specification.and(CatSpecifications.withOwnerId(ownerId));
 		List<Cat> catsWithColorAndOwner = catRepository.findAll(specification);
 
 		Assertions.assertTrue(catsWithColorAndOwner.stream()
@@ -203,7 +277,7 @@ public class CatsDataTest {
 	@DatabaseSetup("classpath:dbUnit/data.xml")
 	public void searchCatOwnerWithNameSpecification_searchWorks() {
 		String name = "KSlacker";
-		Specification<CatOwner> specification = where(CatOwnerFieldsSpecifications.withName(name));
+		Specification<CatOwner> specification = where(CatOwnerSpecifications.withName(name));
 		List<CatOwner> catOwners = catOwnerRepository.findAll(specification);
 
 		Assertions.assertFalse(catOwners.isEmpty());
@@ -216,7 +290,7 @@ public class CatsDataTest {
 	public void searchCatOwnerWithDateOfBirthSpecification_searchWorks() {
 		LocalDate dateOfBirth = LocalDate.of(2003, 5, 7);
 		Specification<CatOwner> specification = where(
-			CatOwnerFieldsSpecifications.withDateOfBirth(dateOfBirth));
+			CatOwnerSpecifications.withDateOfBirth(dateOfBirth));
 		List<CatOwner> catOwners = catOwnerRepository.findAll(specification);
 
 		Assertions.assertFalse(catOwners.isEmpty());
@@ -228,7 +302,7 @@ public class CatsDataTest {
 	@DatabaseSetup("classpath:dbUnit/data.xml")
 	public void searchCatOwnerWithCatSpecification_searchWorks() {
 		Cat cat = catRepository.findById(1L).orElseThrow();
-		Specification<CatOwner> specification = where(CatOwnerFieldsSpecifications.withCat(cat));
+		Specification<CatOwner> specification = where(CatOwnerSpecifications.withCat(cat));
 		List<CatOwner> catOwners = catOwnerRepository.findAll(specification);
 
 		Assertions.assertFalse(catOwners.isEmpty());
@@ -243,10 +317,10 @@ public class CatsDataTest {
 	public void searchCatOwnerWithCustomCriteriaSpecification_searchWorks() {
 		String name = "KSlacker";
 		LocalDate dateOfBirth = LocalDate.of(2003, 5, 7);
-		Specification<CatOwner> specification = where(CatOwnerFieldsSpecifications.withName(name));
+		Specification<CatOwner> specification = where(CatOwnerSpecifications.withName(name));
 		List<CatOwner> catOwnersWithName = catOwnerRepository.findAll(specification);
 		specification = specification.and(
-			CatOwnerFieldsSpecifications.withDateOfBirth(dateOfBirth));
+			CatOwnerSpecifications.withDateOfBirth(dateOfBirth));
 		List<CatOwner> catOwnersWithNameAndDateOfBirth = catOwnerRepository.findAll(specification);
 
 		Assertions.assertTrue(catOwnersWithNameAndDateOfBirth.stream()
@@ -255,6 +329,60 @@ public class CatsDataTest {
 		Assertions.assertNotEquals(catOwnersWithName, catOwnersWithNameAndDateOfBirth);
 	}
 
+	@Test
+	@DatabaseSetup("classpath:dbUnit/data.xml")
+	public void searchUserWithUsername_searchWorks() {
+
+		String username = "a";
+		Optional<UserAccount> user = userRepository.findByUsername(username);
+
+		Assertions.assertTrue(user.isPresent());
+		Assertions.assertEquals(username, user.get().getUsername());
+	}
+
+	@Test
+	@DatabaseSetup("classpath:dbUnit/data.xml")
+	public void searchUserWithRole_searchWorks() {
+
+		UserRole role = UserRole.ADMIN;
+		Specification<UserAccount> specification = where(UserSpecifications.withRole(role));
+		List<UserAccount> users = userRepository.findAll(specification);
+
+		Assertions.assertTrue(users.stream().allMatch(user -> user.getRole().equals(role)));
+	}
+
+	@Test
+	@DatabaseSetup("classpath:dbUnit/data.xml")
+	public void searchUserWithLock_searchWorks() {
+
+		boolean locked = true;
+		Specification<UserAccount> specification = where(UserSpecifications.withLock(locked));
+		List<UserAccount> users = userRepository.findAll(specification);
+
+		Assertions.assertTrue(users.stream().allMatch(user -> user.isLocked() == locked));
+	}
+
+	@Test
+	@DatabaseSetup("classpath:dbUnit/data.xml")
+	public void searchUserWithStatus_searchWorks() {
+
+		boolean enabled = true;
+		Specification<UserAccount> specification = where(UserSpecifications.withStatus(enabled));
+		List<UserAccount> users = userRepository.findAll(specification);
+
+		Assertions.assertTrue(users.stream().allMatch(user -> user.isEnabled() == enabled));
+	}
+
+	@Test
+	@DatabaseSetup("classpath:dbUnit/data.xml")
+	public void searchUserWithAccountExpirationDate_searchWorks() {
+
+		LocalDate accountExpirationDate = LocalDate.of(2025, 10, 10);
+		Specification<UserAccount> specification = where(UserSpecifications.withAccountExpirationDate(accountExpirationDate));
+		List<UserAccount> users = userRepository.findAll(specification);
+
+		Assertions.assertTrue(users.stream().allMatch(user -> user.getAccountExpirationDate().equals(accountExpirationDate)));
+	}
 
 	private CatOwner getTestOwner() {
 		String name = "KSlacker";

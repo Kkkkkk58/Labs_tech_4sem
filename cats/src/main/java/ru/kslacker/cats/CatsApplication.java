@@ -9,10 +9,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 // TODO tests
+// TODO get with ids list
 // TODO GET with RSQL/Specifications extended query with custom operators
 // TODO Hide swagger on release versions (profiles!!)
 // TODO html pages + controllers (+ err page and controller advice)
 // TODO better security scheme than basic
+// TODO Remember me service
 
 @SpringBootApplication
 @OpenAPIDefinition(info = @Info(title = "Cats API", version = "3.0", description = "API for the service for registration of cats and their owners"))

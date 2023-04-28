@@ -57,4 +57,49 @@
 		cat_id="2"
 		friend_id="1"
 	/>
+
+	<accounts
+		id="1"
+		username="a"
+		email="a@gmail.com"
+		password="a"
+		owner_id="1"
+		role="ADMIN"
+		enabled="true"
+		locked="false"
+	/>
+
+	<accounts
+		id="2"
+		username="b"
+		email="b@gmail.com"
+		password="b"
+		role="ADMIN"
+		enabled="false"
+		locked="true"
+		account_expiration_date="2025-10-10"
+	/>
+
+	<accounts
+		id="3"
+		username="c"
+		email="c@gmail.com"
+		password="c"
+		owner_id="2"
+		role="USER"
+		enabled="true"
+		locked="false"
+	/>
+
+	<accounts
+		id="4"
+		username="d"
+		email="d@gmail.com"
+		password="d"
+		owner_id="3"
+		role="USER"
+		enabled="true"
+		locked="false"
+	/>
+
 </dataset>

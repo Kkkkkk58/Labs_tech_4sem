@@ -3,6 +3,7 @@ package ru.kslacker.cats.services.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ru.kslacker.cats.common.models.UserRole;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
 import ru.kslacker.cats.dataaccess.entities.UserAccount;
 import java.time.LocalDate;
@@ -60,6 +61,14 @@ public class UserDetailsImpl implements UserDetails {
 	public Long getOwnerId() {
 		CatOwner owner = userAccount.getOwner();
 		return (owner == null) ? null : owner.getId();
+	}
+
+	public boolean isAdmin() {
+		return getAuthorities().contains(UserRole.ADMIN);
+	}
+
+	public boolean isUser() {
+		return getAuthorities().contains(UserRole.USER);
 	}
 
 	private boolean isNonExpired(LocalDate expirationDate) {

@@ -1,5 +1,6 @@
 package ru.kslacker.cats.presentation.models.cats;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.PastOrPresent;
@@ -7,8 +8,8 @@ import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
 import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.presentation.validation.ValidationGroup;
-import ru.kslacker.cats.services.validation.UpdateDate;
-import ru.kslacker.cats.services.validation.UpdateName;
+import ru.kslacker.cats.services.validation.annotations.UpdateDate;
+import ru.kslacker.cats.services.validation.annotations.UpdateName;
 
 public record CatModel(
 	@NotBlank(groups = ValidationGroup.OnCreate.class)
@@ -19,8 +20,10 @@ public record CatModel(
 	LocalDate dateOfBirth,
 	String breed,
 	FurColor furColor,
+
 	@Positive(groups = ValidationGroup.OnCreate.class)
 	@Null(groups = ValidationGroup.OnUpdate.class)
+	@JsonIgnore
 	Long ownerId) {
 
 }

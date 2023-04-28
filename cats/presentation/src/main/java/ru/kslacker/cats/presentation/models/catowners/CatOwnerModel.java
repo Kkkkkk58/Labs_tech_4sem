@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
 import ru.kslacker.cats.presentation.validation.ValidationGroup;
-import ru.kslacker.cats.services.validation.UpdateDate;
-import ru.kslacker.cats.services.validation.UpdateName;
+import ru.kslacker.cats.services.validation.annotations.UpdateDate;
+import ru.kslacker.cats.services.validation.annotations.UpdateName;
 
 public record CatOwnerModel(@NotBlank(groups = ValidationGroup.OnCreate.class)
 							@UpdateName(groups = ValidationGroup.OnUpdate.class)

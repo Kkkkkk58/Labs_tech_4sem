@@ -1,9 +1,9 @@
 package ru.kslacker.cats.services;
 
 import static org.springframework.data.jpa.domain.Specification.where;
-import static ru.kslacker.cats.dataaccess.specifications.CatOwnerFieldsSpecifications.withCat;
-import static ru.kslacker.cats.dataaccess.specifications.CatOwnerFieldsSpecifications.withDateOfBirth;
-import static ru.kslacker.cats.dataaccess.specifications.CatOwnerFieldsSpecifications.withName;
+import static ru.kslacker.cats.dataaccess.specifications.CatOwnerSpecifications.withCat;
+import static ru.kslacker.cats.dataaccess.specifications.CatOwnerSpecifications.withDateOfBirth;
+import static ru.kslacker.cats.dataaccess.specifications.CatOwnerSpecifications.withName;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -27,7 +27,7 @@ import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
 import ru.kslacker.cats.dataaccess.repositories.CatRepository;
 import ru.kslacker.cats.services.api.CatOwnerService;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
-import ru.kslacker.cats.services.dto.CatOwnerUpdateDto;
+import ru.kslacker.cats.services.models.CatOwnerUpdateModel;
 import ru.kslacker.cats.services.exceptions.EntityException;
 import ru.kslacker.cats.services.mapping.CatOwnerMapping;
 import ru.kslacker.cats.services.mapping.StreamMapping;
@@ -93,9 +93,9 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 
 	@Override
 	@Transactional
-	public CatOwnerDto update(CatOwnerUpdateDto catOwnerDto) {
+	public CatOwnerDto update(CatOwnerUpdateModel catOwnerDto) {
 
-		validateUpdateDto(catOwnerDto);
+		validateUpdateModel(catOwnerDto);
 
 		CatOwner owner = getCatOwnerById(catOwnerDto.id());
 
@@ -109,9 +109,9 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 		return catOwnerRepository.save(owner).asDto();
 	}
 
-	private void validateUpdateDto(CatOwnerUpdateDto catOwnerDto) {
-		Set<ConstraintViolation<CatOwnerUpdateDto>> violations = validator.validate(
-			catOwnerDto);
+	private void validateUpdateModel(CatOwnerUpdateModel updateModel) {
+		Set<ConstraintViolation<CatOwnerUpdateModel>> violations = validator.validate(
+			updateModel);
 		if (!violations.isEmpty()) {
 			throw new ConstraintViolationException(violations);
 		}

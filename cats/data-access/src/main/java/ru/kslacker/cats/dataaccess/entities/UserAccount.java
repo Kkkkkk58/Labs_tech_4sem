@@ -22,16 +22,17 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 import ru.kslacker.cats.common.models.UserRole;
-import ru.kslacker.cats.dataaccess.models.OptionalInfoUserBuilder;
-import ru.kslacker.cats.dataaccess.models.PasswordUserBuilder;
-import ru.kslacker.cats.dataaccess.models.UsernameUserBuilder;
+import ru.kslacker.cats.dataaccess.exceptions.UserBuilderException;
+import ru.kslacker.cats.dataaccess.models.userbuilder.OptionalInfoUserBuilder;
+import ru.kslacker.cats.dataaccess.models.userbuilder.PasswordUserBuilder;
+import ru.kslacker.cats.dataaccess.models.userbuilder.UsernameUserBuilder;
 
 @Entity
 @Table(name = "accounts")
 @Getter
-@Setter(AccessLevel.PROTECTED)
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 public class UserAccount {
 
@@ -70,9 +71,17 @@ public class UserAccount {
 	@Column(name = "credentials_expiration_date")
 	private LocalDate credentialsExpirationDate = null;
 
-	public UserAccount(String username, String email, String password, CatOwner owner, UserRole role,
-		boolean enabled, boolean locked, LocalDate accountExpirationDate,
+	protected UserAccount(
+		String username,
+		String email,
+		String password,
+		CatOwner owner,
+		UserRole role,
+		boolean enabled,
+		boolean locked,
+		LocalDate accountExpirationDate,
 		LocalDate credentialsExpirationDate) {
+
 		this.username = username;
 		this.email = email;
 		this.password = password;
@@ -176,10 +185,18 @@ public class UserAccount {
 		@Override
 		public UserAccount build() {
 			if (username == null || password == null) {
-				throw new RuntimeException(); // TODO
+				throw UserBuilderException.missingCredentials();
 			}
 
-			return new UserAccount(username, email, password, owner, role, enabled, locked, accountExpirationDate, credentialsExpirationDate);
+			return new UserAccount(
+				username,
+				email,
+				password,
+				owner, role,
+				enabled,
+				locked,
+				accountExpirationDate,
+				credentialsExpirationDate);
 		}
 	}
 }
