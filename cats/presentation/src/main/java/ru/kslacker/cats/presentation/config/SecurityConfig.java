@@ -41,7 +41,7 @@ public class SecurityConfig {
 			.anyRequest()
 			.authenticated()                                    // TODO + mb update views
 			.and().formLogin().loginPage("/login")
-			.defaultSuccessUrl("/")/*successHandler(loginSuccessHandler)*/.permitAll()
+			.defaultSuccessUrl("/").permitAll()
 			.and().logout().logoutSuccessUrl("/").permitAll()
 			.and().httpBasic()
 			.authenticationEntryPoint((request, response, authException) -> response.sendError(
