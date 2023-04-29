@@ -29,7 +29,6 @@ import ru.kslacker.cats.services.validation.service.api.ValidationService;
 @Component
 public class CatsServicesTest {
 
-	// TODO Add tests
 	private PasswordEncoder encoder;
 
 	private CatRepository catRepository;
