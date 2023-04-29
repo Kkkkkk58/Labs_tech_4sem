@@ -22,6 +22,7 @@ dependencies {
 	api("org.webjars:bootstrap:5.2.3")
 	annotationProcessor("com.github.therapi:therapi-runtime-javadoc-scribe:0.15.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.springframework.security:spring-security-test")
 }
 
 tasks.getByName<Test>("test") {
