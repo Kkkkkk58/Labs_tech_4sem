@@ -34,7 +34,7 @@ import ru.kslacker.cats.dataaccess.models.userbuilder.UsernameUserBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
-public class UserAccount {
+public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -71,7 +71,7 @@ public class UserAccount {
 	@Column(name = "credentials_expiration_date")
 	private LocalDate credentialsExpirationDate = null;
 
-	protected UserAccount(
+	protected User(
 		String username,
 		String email,
 		String password,
@@ -105,8 +105,8 @@ public class UserAccount {
 		if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
 			return false;
 		}
-		UserAccount userAccount = (UserAccount) o;
-		return id != null && Objects.equals(id, userAccount.id);
+		User user = (User) o;
+		return id != null && Objects.equals(id, user.id);
 	}
 
 	@Override
@@ -183,12 +183,12 @@ public class UserAccount {
 		}
 
 		@Override
-		public UserAccount build() {
+		public User build() {
 			if (username == null || password == null) {
 				throw UserBuilderException.missingCredentials();
 			}
 
-			return new UserAccount(
+			return new User(
 				username,
 				email,
 				password,

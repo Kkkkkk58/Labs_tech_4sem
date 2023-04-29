@@ -38,12 +38,14 @@ public class SecurityConfig {
 			.requestMatchers("/api/v3/auth/register").permitAll()
 			.requestMatchers("/", "/index.html", "/resources/**", "/assets/**").permitAll()
 			.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-			.anyRequest().authenticated()                                    // TODO + mb update views
-			.and().formLogin().loginPage("/login").defaultSuccessUrl("/")/*successHandler(loginSuccessHandler)*/.permitAll()
+			.anyRequest()
+			.authenticated()                                    // TODO + mb update views
+			.and().formLogin().loginPage("/login")
+			.defaultSuccessUrl("/")/*successHandler(loginSuccessHandler)*/.permitAll()
 			.and().logout().logoutSuccessUrl("/").permitAll()
 			.and().httpBasic()
-				.authenticationEntryPoint((request, response, authException) -> response.sendError(
-					HttpServletResponse.SC_UNAUTHORIZED))
+			.authenticationEntryPoint((request, response, authException) -> response.sendError(
+				HttpServletResponse.SC_UNAUTHORIZED))
 			.and()
 			.build();
 	}

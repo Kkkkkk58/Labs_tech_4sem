@@ -1,25 +1,39 @@
 package ru.kslacker.cats.services.api;
 
-import java.time.LocalDate;
 import java.util.List;
-import org.springframework.data.domain.Pageable;
 import ru.kslacker.cats.common.models.UserRole;
 import ru.kslacker.cats.services.dto.UserDto;
-import ru.kslacker.cats.services.models.CatOwnerModel;
-import ru.kslacker.cats.services.models.Credentials;
-import ru.kslacker.cats.services.models.UserUpdateModel;
+import ru.kslacker.cats.services.models.catowners.CatOwnerInformation;
+import ru.kslacker.cats.services.models.users.Credentials;
+import ru.kslacker.cats.services.models.users.UserSearchOptions;
+import ru.kslacker.cats.services.models.users.UserUpdateInformation;
 
 public interface UserService {
 
-	UserDto create(Credentials credentials, UserRole role, CatOwnerModel catOwnerModel);
-	UserDto create(Credentials credentials, CatOwnerModel catOwnerModel);
+	UserDto create(
+		Credentials credentials,
+		UserRole role,
+		CatOwnerInformation catOwnerInformation);
+
+	UserDto create(
+		Credentials credentials,
+		CatOwnerInformation catOwnerInformation);
+
 	UserDto get(Long id);
-	List<UserDto> getBy(String username, String email, UserRole role, Boolean locked, Boolean enabled, LocalDate accountExpirationDate, LocalDate credentialsExpirationDate, Pageable pageable);
+
+	List<UserDto> getBy(UserSearchOptions searchOptions);
+
 	void delete(Long id);
+
 	void disable(Long id);
+
 	void enable(Long id);
+
 	void ban(Long id);
+
 	void unban(Long id);
-	UserDto update(UserUpdateModel updateModel);
+
+	UserDto update(UserUpdateInformation userUpdateInformation);
+
 	void promoteToAdmin(Long id);
 }

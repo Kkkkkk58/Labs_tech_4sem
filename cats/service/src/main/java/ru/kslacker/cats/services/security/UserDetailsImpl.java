@@ -1,65 +1,65 @@
 package ru.kslacker.cats.services.security;
 
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import ru.kslacker.cats.common.models.UserRole;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import ru.kslacker.cats.dataaccess.entities.UserAccount;
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Set;
+import ru.kslacker.cats.dataaccess.entities.User;
 
 @RequiredArgsConstructor
 public class UserDetailsImpl implements UserDetails {
 
-	private final UserAccount userAccount;
+	private final User user;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return Set.of(userAccount.getRole());
+		return Set.of(user.getRole());
 	}
 
 	@Override
 	public String getPassword() {
-		return userAccount.getPassword();
+		return user.getPassword();
 	}
 
 	@Override
 	public String getUsername() {
-		return userAccount.getUsername();
+		return user.getUsername();
 	}
 
 	@Override
 	public boolean isAccountNonExpired() {
-		return isNonExpired(userAccount.getAccountExpirationDate());
+		return isNonExpired(user.getAccountExpirationDate());
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
-		return !userAccount.isLocked();
+		return !user.isLocked();
 	}
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		return isNonExpired(userAccount.getCredentialsExpirationDate());
+		return isNonExpired(user.getCredentialsExpirationDate());
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return userAccount.isEnabled();
+		return user.isEnabled();
 	}
 
 	public String getEmail() {
-		return userAccount.getEmail();
+		return user.getEmail();
 	}
 
 	public Long getId() {
-		return userAccount.getId();
+		return user.getId();
 	}
 
 	public Long getOwnerId() {
-		CatOwner owner = userAccount.getOwner();
+		CatOwner owner = user.getOwner();
 		return (owner == null) ? null : owner.getId();
 	}
 
@@ -73,6 +73,8 @@ public class UserDetailsImpl implements UserDetails {
 
 	private boolean isNonExpired(LocalDate expirationDate) {
 		LocalDate currentDate = LocalDate.now();
-		return expirationDate == null || currentDate.equals(expirationDate) || currentDate.isBefore(expirationDate);
+		return expirationDate == null
+			|| currentDate.equals(expirationDate)
+			|| currentDate.isBefore(expirationDate);
 	}
 }

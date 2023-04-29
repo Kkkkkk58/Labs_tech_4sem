@@ -9,14 +9,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.kslacker.cats.presentation.models.users.CreateUserUserModel;
+import ru.kslacker.cats.presentation.models.users.UserModel;
 import ru.kslacker.cats.services.api.UserService;
 import ru.kslacker.cats.services.dto.UserDto;
-import ru.kslacker.cats.services.models.CatOwnerModel;
-import ru.kslacker.cats.services.models.Credentials;
-
-// TODO Update data (password etc)
-// TODO create user -> then page with owner creation
+import ru.kslacker.cats.services.models.catowners.CatOwnerInformation;
 
 @RestController
 @RequestMapping("/api/v3/auth")
@@ -26,26 +22,26 @@ public class RestAuthenticationController {
 	private final UserService userService;
 
 	@Autowired
-	public RestAuthenticationController(
-		UserService userService) {
+	public RestAuthenticationController(UserService userService) {
 		this.userService = userService;
 	}
 
+	/**
+	 * Register new user
+	 *
+	 * @param userModel Information about user
+	 * @return Info about registered user
+	 */
 	@PostMapping(value = "register", consumes = "application/json", produces = "application/json")
-	public ResponseEntity<UserDto> registerUser(@Valid @RequestBody CreateUserUserModel userModel) {
-		UserDto user = userService.create(
-			Credentials.builder()
-				.username(userModel.username())
-				.email(userModel.email().orElse(null))
-				.password(userModel.password())
-				.build(),
-			CatOwnerModel.builder()
-				.name(userModel.catOwnerModel().name())
-				.dateOfBirth(userModel.catOwnerModel().dateOfBirth())
-				.build());
+	public ResponseEntity<UserDto> registerUser(@Valid @RequestBody UserModel userModel) {
 
-		return new ResponseEntity<>(
-			user,
-			HttpStatus.CREATED);
+		CatOwnerInformation catOwnerInformation = CatOwnerInformation.builder()
+			.name(userModel.catOwnerModel().name())
+			.dateOfBirth(userModel.catOwnerModel().dateOfBirth())
+			.build();
+
+		UserDto user = userService.create(userModel.credentials(), catOwnerInformation);
+
+		return new ResponseEntity<>(user, HttpStatus.CREATED);
 	}
 }

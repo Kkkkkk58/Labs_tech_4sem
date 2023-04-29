@@ -3,44 +3,55 @@ package ru.kslacker.cats.test.service;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import jakarta.validation.Validator;
 import java.time.LocalDate;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.dataaccess.entities.Cat;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
 import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
 import ru.kslacker.cats.dataaccess.repositories.CatRepository;
+import ru.kslacker.cats.dataaccess.repositories.UserRepository;
 import ru.kslacker.cats.services.CatOwnerServiceImpl;
 import ru.kslacker.cats.services.CatServiceImpl;
+import ru.kslacker.cats.services.UserServiceImpl;
 import ru.kslacker.cats.services.api.CatOwnerService;
 import ru.kslacker.cats.services.api.CatService;
+import ru.kslacker.cats.services.api.UserService;
 import ru.kslacker.cats.services.dto.CatDto;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
+import ru.kslacker.cats.services.validation.service.api.ValidationService;
 
 @Component
 public class CatsServicesTest {
 
+	// TODO Add tests
+	private PasswordEncoder encoder;
+
 	private CatRepository catRepository;
 
 	private CatOwnerRepository catOwnerRepository;
+	private UserRepository userRepository;
 
 	private CatOwnerService catOwnerService;
 	private CatService catService;
-
+	private UserService userService;
 
 	@BeforeEach
 	public void setup() {
 		catRepository = mock(CatRepository.class);
 		catOwnerRepository = mock(CatOwnerRepository.class);
-		Validator validator = mock(Validator.class);
+		userRepository = mock(UserRepository.class);
+		encoder = mock(PasswordEncoder.class);
+		ValidationService validator = mock(ValidationService.class);
 
 		catService = new CatServiceImpl(validator, catRepository, catOwnerRepository);
 		catOwnerService = new CatOwnerServiceImpl(validator, catOwnerRepository, catRepository);
+		userService = new UserServiceImpl(validator, encoder, userRepository, catOwnerRepository);
 	}
 
 	@Test
@@ -129,6 +140,7 @@ public class CatsServicesTest {
 		Assertions.assertTrue(
 			owner.getCats().stream().noneMatch(c -> c.getName().equals("1")));
 	}
+
 
 	private CatOwner getTestOwner() {
 		return new CatOwner("Test owner", LocalDate.now());

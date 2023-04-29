@@ -2,11 +2,11 @@ package ru.kslacker.cats.services.validation.validators;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import ru.kslacker.cats.services.validation.annotations.UpdateDate;
-
 import java.time.LocalDate;
+import ru.kslacker.cats.services.validation.annotations.PastOrPresentUpdateDate;
 
-public class UpdateDateValidator implements ConstraintValidator<UpdateDate, LocalDate> {
+public class PastOrPresentUpdateDateValidator implements
+	ConstraintValidator<PastOrPresentUpdateDate, LocalDate> {
 
 	@Override
 	public boolean isValid(LocalDate value, ConstraintValidatorContext context) {

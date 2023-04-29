@@ -9,22 +9,17 @@ import static ru.kslacker.cats.dataaccess.specifications.UserSpecifications.with
 import static ru.kslacker.cats.dataaccess.specifications.UserSpecifications.withStatus;
 import static ru.kslacker.cats.dataaccess.specifications.UserSpecifications.withUsername;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validator;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
+import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kslacker.cats.common.models.UserRole;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import ru.kslacker.cats.dataaccess.entities.UserAccount;
+import ru.kslacker.cats.dataaccess.entities.User;
 import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
 import ru.kslacker.cats.dataaccess.repositories.UserRepository;
 import ru.kslacker.cats.services.api.UserService;
@@ -33,9 +28,11 @@ import ru.kslacker.cats.services.exceptions.EntityException;
 import ru.kslacker.cats.services.exceptions.UserException;
 import ru.kslacker.cats.services.mapping.StreamMapping;
 import ru.kslacker.cats.services.mapping.UserMapping;
-import ru.kslacker.cats.services.models.CatOwnerModel;
-import ru.kslacker.cats.services.models.Credentials;
-import ru.kslacker.cats.services.models.UserUpdateModel;
+import ru.kslacker.cats.services.models.catowners.CatOwnerInformation;
+import ru.kslacker.cats.services.models.users.Credentials;
+import ru.kslacker.cats.services.models.users.UserSearchOptions;
+import ru.kslacker.cats.services.models.users.UserUpdateInformation;
+import ru.kslacker.cats.services.validation.service.api.ValidationService;
 
 @Service
 @Transactional(readOnly = true)
@@ -44,74 +41,91 @@ public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
 	private final CatOwnerRepository catOwnerRepository;
-	private final Validator validator;
+	private final ValidationService validator;
 	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
-	public UserServiceImpl(UserRepository userRepository, CatOwnerRepository catOwnerRepository,
-		Validator validator, PasswordEncoder passwordEncoder) {
-		this.userRepository = userRepository;
-		this.catOwnerRepository = catOwnerRepository;
+	public UserServiceImpl(
+		@NonNull ValidationService validator,
+		@NonNull PasswordEncoder passwordEncoder,
+		@NonNull UserRepository userRepository,
+		@NonNull CatOwnerRepository catOwnerRepository) {
+
 		this.validator = validator;
 		this.passwordEncoder = passwordEncoder;
+		this.userRepository = userRepository;
+		this.catOwnerRepository = catOwnerRepository;
 	}
 
 	@Override
 	@Transactional
-	public UserDto create(Credentials credentials, UserRole role, CatOwnerModel catOwnerModel) {
+	public UserDto create(
+		@NonNull Credentials credentials,
+		@NonNull UserRole role,
+		CatOwnerInformation catOwnerInformation) {
 
-		CatOwner owner = new CatOwner(catOwnerModel.name(), catOwnerModel.dateOfBirth());
-		owner = catOwnerRepository.save(owner);
+		validator.validate(credentials);
 
-		UserAccount userAccount = UserAccount.builder()
+		CatOwner owner = null;
+		if (catOwnerInformation != null) {
+
+			validator.validate(catOwnerInformation);
+			owner = catOwnerRepository.save(
+				new CatOwner(catOwnerInformation.name(), catOwnerInformation.dateOfBirth()));
+		}
+
+		User user = User.builder()
 			.withUsername(credentials.username())
 			.withPassword(passwordEncoder.encode(credentials.password()))
-			.withEmail(credentials.email())
+			.withEmail(credentials.email().orElse(null))
 			.withRole(role)
 			.withOwner(owner)
 			.build();
 
-		return userRepository.saveAndFlush(userAccount).asDto();
+		return userRepository.saveAndFlush(user).asDto();
 	}
 
 	@Override
 	@Transactional
-	public UserDto create(Credentials credentials, CatOwnerModel catOwnerModel) {
-		return create(credentials, UserRole.USER, catOwnerModel);
+	public UserDto create(
+		@NonNull Credentials credentials,
+		@NonNull CatOwnerInformation catOwnerInformation) {
+
+		return create(credentials, UserRole.USER, catOwnerInformation);
 	}
 
 	@Override
-	public UserDto get(Long id) {
+	public UserDto get(@NonNull Long id) {
 		return getUserById(id).asDto();
 	}
 
 	@Override
-	public List<UserDto> getBy(String username, String email, UserRole role, Boolean locked, Boolean enabled,
-		LocalDate accountExpirationDate, LocalDate credentialsExpirationDate, Pageable pageable) {
+	public List<UserDto> getBy(@NonNull UserSearchOptions searchOptions) {
 
-		Specification<UserAccount> specification =
-			where(withUsername(username))
-				.and(withEmail(email))
-				.and(withRole(role))
-				.and(withLock(locked))
-				.and(withStatus(enabled))
-				.and(withAccountExpirationDate(accountExpirationDate))
-				.and(withCredentialsExpirationDate(credentialsExpirationDate));
+		Specification<User> specification =
+			where(withUsername(searchOptions.username()))
+				.and(withEmail(searchOptions.email()))
+				.and(withRole(searchOptions.role()))
+				.and(withLock(searchOptions.locked()))
+				.and(withStatus(searchOptions.enabled()))
+				.and(withAccountExpirationDate(searchOptions.accountExpirationDate()))
+				.and(withCredentialsExpirationDate(searchOptions.credentialsExpirationDate()));
 
-		return userRepository.findAll(specification, pageable).stream().asUserDto().toList();
+		return userRepository.findAll(specification, searchOptions.pageable()).stream().asUserDto()
+			.toList();
 	}
 
 	@Override
 	@Transactional
 	public void delete(Long id) {
-		UserAccount userAccount = getUserById(id);
-		userRepository.delete(userAccount);
+		User user = getUserById(id);
+		userRepository.delete(user);
 	}
 
 	@Override
 	@Transactional
 	public void disable(Long id) {
-		UserAccount user = getUserById(id);
+		User user = getUserById(id);
 		if (!user.isEnabled()) {
 			throw UserException.userAlreadyDisabled(id);
 		}
@@ -123,7 +137,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public void enable(Long id) {
-		UserAccount user = getUserById(id);
+
+		User user = getUserById(id);
 		if (user.isEnabled()) {
 			throw UserException.userAlreadyEnabled(id);
 		}
@@ -135,7 +150,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public void ban(Long id) {
-		UserAccount user = getUserById(id);
+
+		User user = getUserById(id);
 		if (user.isLocked()) {
 			throw UserException.userAlreadyLocked(id);
 		}
@@ -147,7 +163,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public void unban(Long id) {
-		UserAccount user = getUserById(id);
+
+		User user = getUserById(id);
 		if (!user.isLocked()) {
 			throw UserException.userAlreadyUnlocked(id);
 		}
@@ -158,29 +175,30 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional
-	public UserDto update(UserUpdateModel updateModel) {
+	public UserDto update(UserUpdateInformation userUpdateInformation) {
 
-		validateUpdateModel(updateModel);
+		validator.validate(userUpdateInformation);
 
-		UserAccount user = getUserById(updateModel.id());
+		User user = getUserById(userUpdateInformation.id());
 
-		if (updateModel.email().isPresent()) {
-			user.setEmail(updateModel.email().get());
+		if (userUpdateInformation.email() != null) {
+			user.setEmail(userUpdateInformation.email());
 		}
-		if (updateModel.password().isPresent()) {
-			user.setPassword(passwordEncoder.encode(updateModel.password().get()));
+		if (userUpdateInformation.password() != null) {
+			user.setPassword(passwordEncoder.encode(userUpdateInformation.password()));
 		}
-		if (updateModel.enabled() != null) {
-			user.setEnabled(updateModel.enabled());
+		if (userUpdateInformation.enabled() != null) {
+			user.setEnabled(userUpdateInformation.enabled());
 		}
-		if (updateModel.locked() != null) {
-			user.setLocked(updateModel.locked());
+		if (userUpdateInformation.locked() != null) {
+			user.setLocked(userUpdateInformation.locked());
 		}
-		if (updateModel.accountExpirationDate().isPresent()) {
-			user.setAccountExpirationDate(updateModel.accountExpirationDate().get());
+		if (userUpdateInformation.accountExpirationDate() != null) {
+			user.setAccountExpirationDate(userUpdateInformation.accountExpirationDate());
 		}
-		if (updateModel.credentialsExpirationDate().isPresent()) {
-			user.setCredentialsExpirationDate(updateModel.credentialsExpirationDate().get());
+		if (userUpdateInformation.credentialsExpirationDate() != null) {
+			user.setCredentialsExpirationDate(
+				userUpdateInformation.credentialsExpirationDate());
 		}
 
 		return userRepository.save(user).asDto();
@@ -189,7 +207,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public void promoteToAdmin(Long id) {
-		UserAccount user = getUserById(id);
+		User user = getUserById(id);
 		if (user.getRole().equals(UserRole.ADMIN)) {
 			throw UserException.userAlreadyAdmin(id);
 		}
@@ -198,16 +216,9 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(user);
 	}
 
-	private void validateUpdateModel(UserUpdateModel updateModel) {
-		Set<ConstraintViolation<UserUpdateModel>> violations = validator.validate(updateModel);
-		if (!violations.isEmpty()) {
-			throw new ConstraintViolationException(violations);
-		}
-	}
-
-	public UserAccount getUserById(Long id) {
+	public User getUserById(Long id) {
 		return userRepository
 			.findById(id)
-			.orElseThrow(() -> EntityException.entityNotFound(UserAccount.class, id));
+			.orElseThrow(() -> EntityException.entityNotFound(User.class, id));
 	}
 }

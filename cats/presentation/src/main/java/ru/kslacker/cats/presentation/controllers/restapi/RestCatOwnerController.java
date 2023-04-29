@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,7 +32,9 @@ import ru.kslacker.cats.presentation.models.catowners.CatOwnerModel;
 import ru.kslacker.cats.presentation.validation.ValidationGroup;
 import ru.kslacker.cats.services.api.CatOwnerService;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
-import ru.kslacker.cats.services.models.CatOwnerUpdateModel;
+import ru.kslacker.cats.services.models.catowners.CatOwnerInformation;
+import ru.kslacker.cats.services.models.catowners.CatOwnerSearchOptions;
+import ru.kslacker.cats.services.models.catowners.CatOwnerUpdateInformation;
 import ru.kslacker.cats.services.security.UserDetailsImpl;
 
 @RestController
@@ -59,8 +62,13 @@ public class RestCatOwnerController {
 	@Validated(ValidationGroup.OnCreate.class)
 	@PreAuthorize("hasRole(T(ru.kslacker.cats.common.models.UserRole).ADMIN)")
 	public ResponseEntity<CatOwnerDto> create(@Valid @RequestBody CatOwnerModel owner) {
-		return new ResponseEntity<>(service.create(owner.name(), owner.dateOfBirth()),
-			HttpStatus.CREATED);
+
+		CatOwnerInformation catOwnerInformation = CatOwnerInformation.builder()
+			.name(owner.name())
+			.dateOfBirth(owner.dateOfBirth())
+			.build();
+
+		return new ResponseEntity<>(service.create(catOwnerInformation), HttpStatus.CREATED);
 	}
 
 	/**
@@ -76,9 +84,9 @@ public class RestCatOwnerController {
 	}
 
 	/**
-	 * Delete cat owner with given getId
+	 * Delete cat owner with given id
 	 *
-	 * @param id Owner's getId
+	 * @param id Owner's id
 	 * @return None
 	 */
 	@DeleteMapping("{id}")
@@ -98,12 +106,18 @@ public class RestCatOwnerController {
 	 */
 	@PutMapping(value = "{id}", produces = "application/json")
 	@Validated(ValidationGroup.OnUpdate.class)
-	public ResponseEntity<CatOwnerDto> update(@Positive @PathVariable Long id,
+	public ResponseEntity<CatOwnerDto> update(
+		@Positive @PathVariable Long id,
 		@Valid @RequestBody CatOwnerModel owner) {
 
-		ValidateUser(id);
-		CatOwnerDto ownerDto = service.update(
-			new CatOwnerUpdateModel(id, owner.name(), owner.dateOfBirth()));
+		validateUser(id);
+		CatOwnerUpdateInformation catOwnerUpdateInformation = CatOwnerUpdateInformation.builder()
+			.id(id)
+			.name(owner.name())
+			.dateOfBirth(owner.dateOfBirth())
+			.build();
+
+		CatOwnerDto ownerDto = service.update(catOwnerUpdateInformation);
 
 		return ResponseEntity.ok(ownerDto);
 	}
@@ -132,12 +146,19 @@ public class RestCatOwnerController {
 		Pageable pageable =
 			(sort == null) ? PageRequest.of(page, size) : PageRequest.of(page, size, sort);
 
-		return ResponseEntity.ok(service.getBy(name, dateOfBirth, catsIds, pageable));
+		CatOwnerSearchOptions searchOptions = CatOwnerSearchOptions.builder()
+			.name(name)
+			.dateOfBirth(dateOfBirth)
+			.catsIds(catsIds)
+			.pageable(pageable)
+			.build();
+
+		return ResponseEntity.ok(service.getBy(searchOptions));
 	}
 
-	private void ValidateUser(Long ownerId) {
+	private void validateUser(Long ownerId) {
 		if (!isAdmin() && !getUserOwnerId().equals(ownerId)) {
-			throw new RuntimeException(); // TODO
+			throw new AccessDeniedException("User doesn't have permissions to access this page");
 		}
 	}
 

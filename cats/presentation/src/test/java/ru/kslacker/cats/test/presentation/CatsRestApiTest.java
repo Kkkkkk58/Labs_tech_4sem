@@ -29,8 +29,10 @@ import ru.kslacker.cats.services.dto.CatOwnerDto;
 public class CatsRestApiTest {
 
 	public static final String APPLICATION_JSON = "application/json";
-	private static final String API_CAT_OWNER = "/api/cat-owner";
-	private static final String API_CAT = "/api/cat";
+	private static final String API_CAT_OWNER = "/api/v3/cat-owner";
+	private static final String API_CAT = "/api/v3/cat";
+	private static final String API_ADMIN = "/api/v3/admin";
+
 	@Autowired
 	private MockMvc mockMvc;
 	@Autowired

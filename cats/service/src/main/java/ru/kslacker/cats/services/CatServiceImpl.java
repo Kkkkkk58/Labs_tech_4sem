@@ -8,45 +8,41 @@ import static ru.kslacker.cats.dataaccess.specifications.CatSpecifications.withF
 import static ru.kslacker.cats.dataaccess.specifications.CatSpecifications.withName;
 import static ru.kslacker.cats.dataaccess.specifications.CatSpecifications.withOwnerId;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validator;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.dataaccess.entities.Cat;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
 import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
 import ru.kslacker.cats.dataaccess.repositories.CatRepository;
 import ru.kslacker.cats.services.api.CatService;
 import ru.kslacker.cats.services.dto.CatDto;
-import ru.kslacker.cats.services.models.CatUpdateModel;
 import ru.kslacker.cats.services.exceptions.EntityException;
 import ru.kslacker.cats.services.mapping.CatMapping;
 import ru.kslacker.cats.services.mapping.StreamMapping;
+import ru.kslacker.cats.services.models.cats.CatInformation;
+import ru.kslacker.cats.services.models.cats.CatSearchOptions;
+import ru.kslacker.cats.services.models.cats.CatUpdateInformation;
+import ru.kslacker.cats.services.validation.service.api.ValidationService;
 
 @Service
 @Transactional(readOnly = true)
 @ExtensionMethod({CatMapping.class, StreamMapping.class})
 public class CatServiceImpl implements CatService {
 
-	private final Validator validator;
+	private final ValidationService validator;
 	private final CatRepository catRepository;
 	private final CatOwnerRepository catOwnerRepository;
 
 	@Autowired
 	public CatServiceImpl(
-		@NonNull Validator validator,
+		@NonNull ValidationService validator,
 		@NonNull CatRepository catRepository,
 		@NonNull CatOwnerRepository catOwnerRepository) {
 
@@ -57,15 +53,16 @@ public class CatServiceImpl implements CatService {
 
 	@Override
 	@Transactional
-	public CatDto create(
-		@NonNull String name,
-		@NonNull LocalDate dateOfBirth,
-		@NonNull String breed,
-		@NonNull FurColor furColor,
-		@NonNull Long catOwnerId) {
+	public CatDto create(@NonNull CatInformation catInformation) {
 
-		CatOwner owner = catOwnerRepository.getReferenceById(catOwnerId);
-		Cat cat = new Cat(name, dateOfBirth, breed, furColor, owner);
+		validator.validate(catInformation);
+		CatOwner owner = catOwnerRepository.getReferenceById(catInformation.catOwnerId());
+		Cat cat = new Cat(
+			catInformation.name(),
+			catInformation.dateOfBirth(),
+			catInformation.breed(),
+			catInformation.furColor(),
+			owner);
 
 		return catRepository.saveAndFlush(cat).asDto();
 	}
@@ -93,19 +90,23 @@ public class CatServiceImpl implements CatService {
 	}
 
 	@Override
-	public List<CatDto> getBy(String name, LocalDate dateOfBirth, String breed, FurColor furColor,
-		Long ownerId, List<Long> friendsIds, Pageable pageable) {
+	public List<CatDto> getBy(@NonNull CatSearchOptions searchOptions) {
 
-		Specification<Cat> specification = where(
-			withName(name)).and(withDateOfBirth(dateOfBirth)).and(withBreed(breed))
-			.and(withFurColor(furColor)).and(withOwnerId(ownerId));
+		Specification<Cat> specification =
+			where(withName(searchOptions.name()))
+				.and(withDateOfBirth(searchOptions.dateOfBirth()))
+				.and(withBreed(searchOptions.breed()))
+				.and(withFurColor(searchOptions.furColor()))
+				.and(withOwnerId(searchOptions.ownerId()));
 
-		for (Long id : Optional.ofNullable(friendsIds).orElse(Collections.emptyList())) {
+		for (Long id : Optional.ofNullable(searchOptions.friendsIds())
+			.orElse(Collections.emptyList())) {
 			Cat friend = getCatById(id);
 			specification = specification.and(withFriend(friend));
 		}
 
-		return catRepository.findAll(specification, pageable).stream().asCatDto().toList();
+		return catRepository.findAll(specification, searchOptions.pageable()).stream().asCatDto()
+			.toList();
 	}
 
 	@Override
@@ -131,39 +132,32 @@ public class CatServiceImpl implements CatService {
 	}
 
 	@Override
-	public boolean exists(Long id) {
+	public boolean exists(@NonNull Long id) {
 		return catRepository.existsById(id);
 	}
 
 	@Override
 	@Transactional
-	public CatDto update(CatUpdateModel catDto) {
+	public CatDto update(@NonNull CatUpdateInformation catUpdateInformation) {
 
-		validateUpdateDto(catDto);
+		validator.validate(catUpdateInformation);
 
-		Cat cat = getCatById(catDto.id());
+		Cat cat = getCatById(catUpdateInformation.id());
 
-		if (catDto.name() != null) {
-			cat.setName(catDto.name());
+		if (catUpdateInformation.name() != null) {
+			cat.setName(catUpdateInformation.name());
 		}
-		if (catDto.dateOfBirth() != null) {
-			cat.setDateOfBirth(catDto.dateOfBirth());
+		if (catUpdateInformation.dateOfBirth() != null) {
+			cat.setDateOfBirth(catUpdateInformation.dateOfBirth());
 		}
-		if (catDto.breed() != null) {
-			cat.setBreed(catDto.breed());
+		if (catUpdateInformation.breed() != null) {
+			cat.setBreed(catUpdateInformation.breed());
 		}
-		if (catDto.furColor() != null) {
-			cat.setFurColor(catDto.furColor());
+		if (catUpdateInformation.furColor() != null) {
+			cat.setFurColor(catUpdateInformation.furColor());
 		}
 
 		return catRepository.save(cat).asDto();
-	}
-
-	private void validateUpdateDto(CatUpdateModel catDto) {
-		Set<ConstraintViolation<CatUpdateModel>> violations = validator.validate(catDto);
-		if (!violations.isEmpty()) {
-			throw new ConstraintViolationException(violations);
-		}
 	}
 
 	private Cat getCatById(Long id) {

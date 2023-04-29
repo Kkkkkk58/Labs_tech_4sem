@@ -3,11 +3,11 @@ package ru.kslacker.cats.dataaccess.specifications;
 import java.time.LocalDate;
 import org.springframework.data.jpa.domain.Specification;
 import ru.kslacker.cats.common.models.UserRole;
-import ru.kslacker.cats.dataaccess.entities.UserAccount;
+import ru.kslacker.cats.dataaccess.entities.User;
 
 public class UserSpecifications {
 
-	public static Specification<UserAccount> withUsername(String username) {
+	public static Specification<User> withUsername(String username) {
 		if (username == null) {
 			return null;
 		}
@@ -16,7 +16,7 @@ public class UserSpecifications {
 			username));
 	}
 
-	public static Specification<UserAccount> withEmail(String email) {
+	public static Specification<User> withEmail(String email) {
 		if (email == null) {
 			return null;
 		}
@@ -24,7 +24,7 @@ public class UserSpecifications {
 		return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("email"), email));
 	}
 
-	public static Specification<UserAccount> withRole(UserRole role) {
+	public static Specification<User> withRole(UserRole role) {
 		if (role == null) {
 			return null;
 		}
@@ -32,7 +32,7 @@ public class UserSpecifications {
 		return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("role"), role));
 	}
 
-	public static Specification<UserAccount> withLock(Boolean locked) {
+	public static Specification<User> withLock(Boolean locked) {
 		if (locked == null) {
 			return null;
 		}
@@ -40,7 +40,7 @@ public class UserSpecifications {
 			locked));
 	}
 
-	public static Specification<UserAccount> withStatus(Boolean enabled) {
+	public static Specification<User> withStatus(Boolean enabled) {
 		if (enabled == null) {
 			return null;
 		}
@@ -49,7 +49,7 @@ public class UserSpecifications {
 			enabled));
 	}
 
-	public static Specification<UserAccount> withAccountExpirationDate(
+	public static Specification<User> withAccountExpirationDate(
 		LocalDate accountExpiryDate) {
 		if (accountExpiryDate == null) {
 			return null;
@@ -59,7 +59,7 @@ public class UserSpecifications {
 			root.get("accountExpirationDate"), accountExpiryDate));
 	}
 
-	public static Specification<UserAccount> withCredentialsExpirationDate(
+	public static Specification<User> withCredentialsExpirationDate(
 		LocalDate credentialsExpirationDate) {
 		if (credentialsExpirationDate == null) {
 			return null;

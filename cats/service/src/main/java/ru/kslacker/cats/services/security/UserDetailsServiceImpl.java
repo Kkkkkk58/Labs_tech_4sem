@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kslacker.cats.dataaccess.entities.UserAccount;
+import ru.kslacker.cats.dataaccess.entities.User;
 import ru.kslacker.cats.dataaccess.repositories.UserRepository;
 
 @Service
@@ -22,8 +22,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		UserAccount userAccount = userRepository.findByUsername(username)
+		User user = userRepository.findByUsername(username)
 			.orElseThrow(() -> new UsernameNotFoundException(username));
-		return new UserDetailsImpl(userAccount);
+		return new UserDetailsImpl(user);
 	}
 }

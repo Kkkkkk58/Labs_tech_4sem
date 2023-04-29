@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
 import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.presentation.validation.ValidationGroup;
-import ru.kslacker.cats.services.validation.annotations.UpdateDate;
+import ru.kslacker.cats.services.validation.annotations.PastOrPresentUpdateDate;
 import ru.kslacker.cats.services.validation.annotations.UpdateName;
 
 public record CatModel(
@@ -16,8 +16,9 @@ public record CatModel(
 	@UpdateName(groups = ValidationGroup.OnUpdate.class)
 	String name,
 	@PastOrPresent(groups = ValidationGroup.OnCreate.class)
-	@UpdateDate(groups = ValidationGroup.OnUpdate.class)
+	@PastOrPresentUpdateDate(groups = ValidationGroup.OnUpdate.class)
 	LocalDate dateOfBirth,
+	@NotBlank(groups = ValidationGroup.OnCreate.class)
 	String breed,
 	FurColor furColor,
 

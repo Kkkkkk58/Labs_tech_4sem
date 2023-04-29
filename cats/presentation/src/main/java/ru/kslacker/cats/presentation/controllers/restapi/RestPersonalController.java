@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.kslacker.cats.services.api.UserService;
 import ru.kslacker.cats.services.dto.UserDto;
-import ru.kslacker.cats.services.models.UserUpdateModel;
+import ru.kslacker.cats.services.models.users.UserUpdateInformation;
 import ru.kslacker.cats.services.security.UserDetailsImpl;
 import ru.kslacker.cats.services.validation.annotations.Password;
 
@@ -34,24 +33,46 @@ public class RestPersonalController {
 		this.userService = userService;
 	}
 
+	/**
+	 * Get personal information
+	 *
+	 * @return Information about user
+	 */
 	@GetMapping(produces = "application/json")
 	public ResponseEntity<UserDto> getPersonalInfo() {
 		return ResponseEntity.ok(userService.get(getPrincipalId()));
 	}
 
+	/**
+	 * Change user's password
+	 *
+	 * @param password New password
+	 * @param request  Current http request instance to logout
+	 * @return None
+	 * @throws ServletException General servlet exception
+	 */
 	@PatchMapping(value = "set-password", produces = "application/json")
-	public ResponseEntity<?> changePassword(@RequestParam @Password String password, HttpServletRequest request)
-		throws ServletException {
+	public ResponseEntity<?> changePassword(@RequestParam @Password String password,
+		HttpServletRequest request) throws ServletException {
 
-		userService.update(UserUpdateModel.builder()
+		UserUpdateInformation userUpdateInformation = UserUpdateInformation.builder()
 			.id(getPrincipalId())
-			.password(Optional.of(password))
-			.build());
+			.password(password)
+			.build();
+
+		userService.update(userUpdateInformation);
 
 		request.logout();
 		return ResponseEntity.noContent().build();
 	}
 
+	/**
+	 * Disable personal account
+	 *
+	 * @param request Current http request to logout
+	 * @return None
+	 * @throws ServletException General servlet exception
+	 */
 	@PatchMapping(value = "disable", produces = "application/json")
 	public ResponseEntity<?> disableAccount(HttpServletRequest request) throws ServletException {
 
@@ -60,8 +81,9 @@ public class RestPersonalController {
 		return ResponseEntity.noContent().build();
 	}
 
-	public Long getPrincipalId() {
-		UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	private Long getPrincipalId() {
+		UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext()
+			.getAuthentication().getPrincipal();
 		return principal.getId();
 	}
 }

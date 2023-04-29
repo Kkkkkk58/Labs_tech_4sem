@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,7 +33,9 @@ import ru.kslacker.cats.presentation.models.cats.CatModel;
 import ru.kslacker.cats.presentation.validation.ValidationGroup;
 import ru.kslacker.cats.services.api.CatService;
 import ru.kslacker.cats.services.dto.CatDto;
-import ru.kslacker.cats.services.models.CatUpdateModel;
+import ru.kslacker.cats.services.models.cats.CatInformation;
+import ru.kslacker.cats.services.models.cats.CatSearchOptions;
+import ru.kslacker.cats.services.models.cats.CatUpdateInformation;
 import ru.kslacker.cats.services.security.UserDetailsImpl;
 
 @RestController
@@ -62,15 +65,15 @@ public class RestCatController {
 	public ResponseEntity<CatDto> create(@Valid @RequestBody CatModel cat) {
 
 		Long ownerId = getOwnerId(cat.ownerId());
-		return new ResponseEntity<>(
-			service.create(
-				cat.name(),
-				cat.dateOfBirth(),
-				cat.breed(),
-				cat.furColor(),
-				ownerId),
-			HttpStatus.CREATED
-		);
+		CatInformation catInformation = CatInformation.builder()
+			.name(cat.name())
+			.dateOfBirth(cat.dateOfBirth())
+			.breed(cat.breed())
+			.furColor(cat.furColor())
+			.catOwnerId(ownerId)
+			.build();
+
+		return new ResponseEntity<>(service.create(catInformation), HttpStatus.CREATED);
 	}
 
 	/**
@@ -95,10 +98,10 @@ public class RestCatController {
 	 */
 	@GetMapping(value = "{id}", produces = "application/json")
 	public ResponseEntity<CatDto> get(@Positive @PathVariable Long id) {
-		
+
 		validateUserByCat(id);
 		CatDto cat = service.get(id);
-		
+
 		return ResponseEntity.ok(cat);
 	}
 
@@ -111,17 +114,19 @@ public class RestCatController {
 	 */
 	@Validated(ValidationGroup.OnUpdate.class)
 	@PutMapping(value = "{id}", produces = "application/json")
-	public ResponseEntity<CatDto> update(@Positive @PathVariable Long id,
+	public ResponseEntity<CatDto> update(
+		@Positive @PathVariable Long id,
 		@Valid @RequestBody CatModel updateModel) {
 
-		CatDto cat = service.update(
-			CatUpdateModel.builder()
-				.id(id)
-				.name(updateModel.name())
-				.dateOfBirth(updateModel.dateOfBirth())
-				.breed(updateModel.breed())
-				.furColor(updateModel.furColor())
-				.build());
+		CatUpdateInformation catUpdateInformation = CatUpdateInformation.builder()
+			.id(id)
+			.name(updateModel.name())
+			.dateOfBirth(updateModel.dateOfBirth())
+			.breed(updateModel.breed())
+			.furColor(updateModel.furColor())
+			.build();
+
+		CatDto cat = service.update(catUpdateInformation);
 
 		return ResponseEntity.ok(cat);
 	}
@@ -157,8 +162,17 @@ public class RestCatController {
 			(sort == null) ? PageRequest.of(page, size) : PageRequest.of(page, size, Sort.by(sort));
 
 		ownerId = getOwnerId(ownerId);
-		return ResponseEntity.ok(
-			service.getBy(name, dateOfBirth, breed, furColor, ownerId, friendsIds, pageable));
+		CatSearchOptions searchOptions = CatSearchOptions.builder()
+			.name(name)
+			.dateOfBirth(dateOfBirth)
+			.breed(breed)
+			.furColor(furColor)
+			.ownerId(ownerId)
+			.friendsIds(friendsIds)
+			.pageable(pageable)
+			.build();
+
+		return ResponseEntity.ok(service.getBy(searchOptions));
 	}
 
 	/**
@@ -205,7 +219,7 @@ public class RestCatController {
 
 		Long ownerId = principal.getOwnerId();
 		if (!service.get(catId).ownerId().equals(ownerId)) {
-			throw new RuntimeException(); // TODO handle
+			throw new AccessDeniedException("Cat belongs to other owner");
 		}
 	}
 

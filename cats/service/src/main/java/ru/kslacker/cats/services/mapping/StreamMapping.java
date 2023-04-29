@@ -1,13 +1,13 @@
 package ru.kslacker.cats.services.mapping;
 
-import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
 import ru.kslacker.cats.dataaccess.entities.Cat;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import ru.kslacker.cats.dataaccess.entities.UserAccount;
+import ru.kslacker.cats.dataaccess.entities.User;
 import ru.kslacker.cats.services.dto.CatDto;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
 import ru.kslacker.cats.services.dto.UserDto;
+import java.util.stream.Stream;
 
 @UtilityClass
 public class StreamMapping {
@@ -20,7 +20,7 @@ public class StreamMapping {
 		return catOwners.map(CatOwnerMapping::asDto);
 	}
 
-	public static Stream<UserDto> asUserDto(Stream<UserAccount> users) {
+	public static Stream<UserDto> asUserDto(Stream<User> users) {
 		return users.map(UserMapping::asDto);
 	}
 }

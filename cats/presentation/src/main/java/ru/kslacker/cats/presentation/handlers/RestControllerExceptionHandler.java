@@ -7,6 +7,7 @@ import org.springdoc.api.ErrorMessage;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -99,13 +100,21 @@ public class RestControllerExceptionHandler {
 			.body(new ErrorMessage(exception.getMessage()));
 	}
 
-	// TODO reduce дублирование
 	@ExceptionHandler(ServletException.class)
 	@ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
 	public ResponseEntity<ErrorMessage> servletException(ServletException exception) {
 
 		return ResponseEntity
 			.status(HttpStatus.METHOD_NOT_ALLOWED)
+			.body(new ErrorMessage(exception.getMessage()));
+	}
+
+	@ExceptionHandler(AccessDeniedException.class)
+	@ResponseStatus(HttpStatus.FORBIDDEN)
+	public ResponseEntity<ErrorMessage> accessDenied(AccessDeniedException exception) {
+
+		return ResponseEntity
+			.status(HttpStatus.FORBIDDEN)
 			.body(new ErrorMessage(exception.getMessage()));
 	}
 }

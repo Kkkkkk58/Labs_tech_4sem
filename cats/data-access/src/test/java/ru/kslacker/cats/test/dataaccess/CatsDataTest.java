@@ -22,7 +22,7 @@ import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.common.models.UserRole;
 import ru.kslacker.cats.dataaccess.entities.Cat;
 import ru.kslacker.cats.dataaccess.entities.CatOwner;
-import ru.kslacker.cats.dataaccess.entities.UserAccount;
+import ru.kslacker.cats.dataaccess.entities.User;
 import ru.kslacker.cats.dataaccess.exceptions.UserBuilderException;
 import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
 import ru.kslacker.cats.dataaccess.repositories.CatRepository;
@@ -113,7 +113,7 @@ public class CatsDataTest {
 		String username = "kslacker";
 		String password = "123654";
 
-		UserAccount user = UserAccount.builder()
+		User user = User.builder()
 			.withUsername(username)
 			.withPassword(password)
 			.build();
@@ -140,7 +140,7 @@ public class CatsDataTest {
 		boolean enabled = false;
 		LocalDate accountExpirationDate = LocalDate.now();
 
-		UserAccount user = UserAccount.builder()
+		User user = User.builder()
 			.withUsername(username)
 			.withPassword(password)
 			.withRole(role)
@@ -165,7 +165,7 @@ public class CatsDataTest {
 	@Test
 	public void createUserWithoutRequiredField_throwsException() {
 
-		Assertions.assertThrows(UserBuilderException.class, () -> UserAccount.builder()
+		Assertions.assertThrows(UserBuilderException.class, () -> User.builder()
 			.withUsername(null)
 			.withPassword("test")
 			.build());
@@ -177,7 +177,7 @@ public class CatsDataTest {
 		Optional<CatOwner> owner = catOwnerRepository.findById(1L);
 		Optional<Cat> cat1 = catRepository.findById(1L);
 		Optional<Cat> cat2 = catRepository.findById(2L);
-		Optional<UserAccount> user = userRepository.findById(1L);
+		Optional<User> user = userRepository.findById(1L);
 
 		Assertions.assertTrue(owner.isPresent());
 		Assertions.assertTrue(cat1.isPresent());
@@ -334,7 +334,7 @@ public class CatsDataTest {
 	public void searchUserWithUsername_searchWorks() {
 
 		String username = "a";
-		Optional<UserAccount> user = userRepository.findByUsername(username);
+		Optional<User> user = userRepository.findByUsername(username);
 
 		Assertions.assertTrue(user.isPresent());
 		Assertions.assertEquals(username, user.get().getUsername());
@@ -345,8 +345,8 @@ public class CatsDataTest {
 	public void searchUserWithRole_searchWorks() {
 
 		UserRole role = UserRole.ADMIN;
-		Specification<UserAccount> specification = where(UserSpecifications.withRole(role));
-		List<UserAccount> users = userRepository.findAll(specification);
+		Specification<User> specification = where(UserSpecifications.withRole(role));
+		List<User> users = userRepository.findAll(specification);
 
 		Assertions.assertTrue(users.stream().allMatch(user -> user.getRole().equals(role)));
 	}
@@ -356,8 +356,8 @@ public class CatsDataTest {
 	public void searchUserWithLock_searchWorks() {
 
 		boolean locked = true;
-		Specification<UserAccount> specification = where(UserSpecifications.withLock(locked));
-		List<UserAccount> users = userRepository.findAll(specification);
+		Specification<User> specification = where(UserSpecifications.withLock(locked));
+		List<User> users = userRepository.findAll(specification);
 
 		Assertions.assertTrue(users.stream().allMatch(user -> user.isLocked() == locked));
 	}
@@ -367,8 +367,8 @@ public class CatsDataTest {
 	public void searchUserWithStatus_searchWorks() {
 
 		boolean enabled = true;
-		Specification<UserAccount> specification = where(UserSpecifications.withStatus(enabled));
-		List<UserAccount> users = userRepository.findAll(specification);
+		Specification<User> specification = where(UserSpecifications.withStatus(enabled));
+		List<User> users = userRepository.findAll(specification);
 
 		Assertions.assertTrue(users.stream().allMatch(user -> user.isEnabled() == enabled));
 	}
@@ -378,8 +378,8 @@ public class CatsDataTest {
 	public void searchUserWithAccountExpirationDate_searchWorks() {
 
 		LocalDate accountExpirationDate = LocalDate.of(2025, 10, 10);
-		Specification<UserAccount> specification = where(UserSpecifications.withAccountExpirationDate(accountExpirationDate));
-		List<UserAccount> users = userRepository.findAll(specification);
+		Specification<User> specification = where(UserSpecifications.withAccountExpirationDate(accountExpirationDate));
+		List<User> users = userRepository.findAll(specification);
 
 		Assertions.assertTrue(users.stream().allMatch(user -> user.getAccountExpirationDate().equals(accountExpirationDate)));
 	}
