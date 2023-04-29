@@ -1,23 +1,16 @@
 package ru.kslacker.cats.services;
 
 import static org.springframework.data.jpa.domain.Specification.where;
-import static ru.kslacker.cats.dataaccess.specifications.CatOwnerFieldsSpecifications.withCat;
-import static ru.kslacker.cats.dataaccess.specifications.CatOwnerFieldsSpecifications.withDateOfBirth;
-import static ru.kslacker.cats.dataaccess.specifications.CatOwnerFieldsSpecifications.withName;
+import static ru.kslacker.cats.dataaccess.specifications.CatOwnerSpecifications.withCat;
+import static ru.kslacker.cats.dataaccess.specifications.CatOwnerSpecifications.withDateOfBirth;
+import static ru.kslacker.cats.dataaccess.specifications.CatOwnerSpecifications.withName;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validator;
-import jakarta.validation.constraints.NotBlank;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,23 +20,26 @@ import ru.kslacker.cats.dataaccess.repositories.CatOwnerRepository;
 import ru.kslacker.cats.dataaccess.repositories.CatRepository;
 import ru.kslacker.cats.services.api.CatOwnerService;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
-import ru.kslacker.cats.services.dto.CatOwnerUpdateDto;
 import ru.kslacker.cats.services.exceptions.EntityException;
 import ru.kslacker.cats.services.mapping.CatOwnerMapping;
 import ru.kslacker.cats.services.mapping.StreamMapping;
+import ru.kslacker.cats.services.models.catowners.CatOwnerInformation;
+import ru.kslacker.cats.services.models.catowners.CatOwnerSearchOptions;
+import ru.kslacker.cats.services.models.catowners.CatOwnerUpdateInformation;
+import ru.kslacker.cats.services.validation.service.api.ValidationService;
 
 @Service
 @Transactional(readOnly = true)
 @ExtensionMethod({CatOwnerMapping.class, StreamMapping.class})
 public class CatOwnerServiceImpl implements CatOwnerService {
 
-	private final Validator validator;
+	private final ValidationService validator;
 	private final CatOwnerRepository catOwnerRepository;
 	private final CatRepository catRepository;
 
 	@Autowired
 	public CatOwnerServiceImpl(
-		@NonNull Validator validator,
+		@NonNull ValidationService validator,
 		@NonNull CatOwnerRepository catOwnerRepository,
 		@NonNull CatRepository catRepository) {
 
@@ -54,14 +50,18 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 
 	@Override
 	@Transactional
-	public CatOwnerDto create(@NotBlank String name, @NonNull LocalDate dateOfBirth) {
-		CatOwner owner = new CatOwner(name, dateOfBirth);
+	public CatOwnerDto create(@NonNull CatOwnerInformation catOwnerInformation) {
+
+		validator.validate(catOwnerInformation);
+		CatOwner owner = new CatOwner(catOwnerInformation.name(),
+			catOwnerInformation.dateOfBirth());
 		return catOwnerRepository.saveAndFlush(owner).asDto();
 	}
 
 	@Override
 	@Transactional
 	public void delete(@NonNull Long id) {
+
 		CatOwner owner = getCatOwnerById(id);
 		catOwnerRepository.delete(owner);
 	}
@@ -72,48 +72,44 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 	}
 
 	@Override
-	public List<CatOwnerDto> getBy(String name, LocalDate dateOfBirth, List<Long> catsIds,
-		Pageable pageable) {
+	public List<CatOwnerDto> getBy(@NonNull CatOwnerSearchOptions searchOptions) {
 
-		Specification<CatOwner> specification = where(withName(name)).and(
-			withDateOfBirth(dateOfBirth));
-		for (Long id : Optional.ofNullable(catsIds).orElse(Collections.emptyList())) {
+		Specification<CatOwner> specification =
+			where(withName(searchOptions.name()))
+				.and(withDateOfBirth(searchOptions.dateOfBirth()));
+
+		for (Long id : Optional.ofNullable(searchOptions.catsIds())
+			.orElse(Collections.emptyList())) {
 			Cat cat = getCatById(id);
 			specification = specification.and(withCat(cat));
 		}
 
-		return catOwnerRepository.findAll(specification, pageable).stream().asCatOwnerDto()
+		return catOwnerRepository.findAll(specification, searchOptions.pageable()).stream()
+			.asCatOwnerDto()
 			.toList();
 	}
 
 	@Override
-	public boolean exists(Long id) {
+	public boolean exists(@NonNull Long id) {
 		return catOwnerRepository.existsById(id);
 	}
 
 	@Override
-	public CatOwnerDto update(CatOwnerUpdateDto catOwnerDto) {
+	@Transactional
+	public CatOwnerDto update(@NonNull CatOwnerUpdateInformation catOwnerUpdateInformation) {
 
-		validateUpdateDto(catOwnerDto);
+		validator.validate(catOwnerUpdateInformation);
 
-		CatOwner owner = getCatOwnerById(catOwnerDto.id());
+		CatOwner owner = getCatOwnerById(catOwnerUpdateInformation.id());
 
-		if (catOwnerDto.name() != null) {
-			owner.setName(catOwnerDto.name());
+		if (catOwnerUpdateInformation.name() != null) {
+			owner.setName(catOwnerUpdateInformation.name());
 		}
-		if (catOwnerDto.dateOfBirth() != null) {
-			owner.setDateOfBirth(catOwnerDto.dateOfBirth());
+		if (catOwnerUpdateInformation.dateOfBirth() != null) {
+			owner.setDateOfBirth(catOwnerUpdateInformation.dateOfBirth());
 		}
 
 		return catOwnerRepository.save(owner).asDto();
-	}
-
-	private void validateUpdateDto(CatOwnerUpdateDto catOwnerDto) {
-		Set<ConstraintViolation<CatOwnerUpdateDto>> violations = validator.validate(
-			catOwnerDto);
-		if (!violations.isEmpty()) {
-			throw new ConstraintViolationException(violations);
-		}
 	}
 
 	private CatOwner getCatOwnerById(Long id) {

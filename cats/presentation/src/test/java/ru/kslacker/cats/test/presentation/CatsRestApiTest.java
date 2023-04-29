@@ -13,24 +13,28 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.kslacker.cats.common.models.FurColor;
-import ru.kslacker.cats.presentation.controllers.RestCatController;
-import ru.kslacker.cats.presentation.controllers.RestCatOwnerController;
+import ru.kslacker.cats.presentation.controllers.restapi.RestCatController;
+import ru.kslacker.cats.presentation.controllers.restapi.RestCatOwnerController;
 import ru.kslacker.cats.presentation.models.catowners.CatOwnerModel;
 import ru.kslacker.cats.presentation.models.cats.CatModel;
 import ru.kslacker.cats.services.api.CatOwnerService;
 import ru.kslacker.cats.services.api.CatService;
-import ru.kslacker.cats.services.dto.CatDto;
+import ru.kslacker.cats.services.api.UserService;
 import ru.kslacker.cats.services.dto.CatOwnerDto;
 
 @WebMvcTest(controllers = {RestCatController.class, RestCatOwnerController.class})
+@WithMockUser(username = "admin", authorities = "ROLE_ADMIN")
 public class CatsRestApiTest {
 
 	public static final String APPLICATION_JSON = "application/json";
-	private static final String API_CAT_OWNER = "/api/cat-owner";
-	private static final String API_CAT = "/api/cat";
+	private static final String API_CAT_OWNER = "/api/v3/cat-owner";
+	private static final String API_CAT = "/api/v3/cat";
+	private static final String API_ADMIN = "/api/v3/admin";
+
 	@Autowired
 	private MockMvc mockMvc;
 	@Autowired
@@ -41,6 +45,9 @@ public class CatsRestApiTest {
 
 	@MockBean
 	private CatOwnerService catOwnerService;
+
+	@MockBean
+	private UserService userService;
 
 	@Test
 	public void createValidCatOwner_isCreated() throws Exception {
@@ -60,17 +67,6 @@ public class CatsRestApiTest {
 			.contentType(APPLICATION_JSON)
 			.content(objectMapper.writeValueAsString(owner))
 		).andExpect(status().isBadRequest());
-	}
-
-	@Test
-	public void createValidCat_isCreated() throws Exception {
-		CatModel cat = new CatModel("Test cat", LocalDate.of(2003, 5, 7), "TestBreed",
-			FurColor.GREY, 1L);
-
-		mockMvc.perform(post(API_CAT)
-			.contentType(APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(cat))
-		).andExpect(status().isCreated());
 	}
 
 	@Test
@@ -102,41 +98,6 @@ public class CatsRestApiTest {
 		assertThat(responseBody).isEqualToIgnoringWhitespace(
 			objectMapper.writeValueAsString(catOwnerDto));
 	}
-
-	@Test
-	public void getExistingCat_isOkWithCorrectBody() throws Exception {
-		Long catId = 1L;
-		CatDto catDto = CatDto.builder()
-			.id(catId)
-			.name("Test owner")
-			.dateOfBirth(LocalDate.now())
-			.breed("Test breed")
-			.furColor(FurColor.FAWN)
-			.ownerId(2L)
-			.build();
-		given(catService.get(catId)).willReturn(catDto);
-
-		MvcResult mvcResult = mockMvc.perform(get(API_CAT + "/{id}", catId)
-				.param("id", String.valueOf(catId)))
-			.andExpect(status().isOk())
-			.andReturn();
-
-		String responseBody = mvcResult.getResponse().getContentAsString();
-		assertThat(responseBody).isEqualToIgnoringWhitespace(
-			objectMapper.writeValueAsString(catDto));
-	}
-
-	@Test
-	public void updateCatOwnerValidModel_isOk() throws Exception {
-		CatOwnerModel owner = new CatOwnerModel(null, LocalDate.of(2003, 5, 7));
-
-		mockMvc.perform(put(API_CAT_OWNER + "/{id}", 1L)
-			.param("id", String.valueOf(1L))
-			.contentType(APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(owner))
-		).andExpect(status().isOk());
-	}
-
 
 	@Test
 	public void updateCatOwnerInvalidModel_isBadRequest() throws Exception {

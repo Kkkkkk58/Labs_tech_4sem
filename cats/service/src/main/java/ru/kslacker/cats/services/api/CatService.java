@@ -1,23 +1,20 @@
 package ru.kslacker.cats.services.api;
 
-import java.time.LocalDate;
 import java.util.List;
-import org.springframework.data.domain.Pageable;
-import ru.kslacker.cats.common.models.FurColor;
 import ru.kslacker.cats.services.dto.CatDto;
-import ru.kslacker.cats.services.dto.CatUpdateDto;
+import ru.kslacker.cats.services.models.cats.CatInformation;
+import ru.kslacker.cats.services.models.cats.CatSearchOptions;
+import ru.kslacker.cats.services.models.cats.CatUpdateInformation;
 
 public interface CatService {
 
-	CatDto create(String name, LocalDate dateOfBirth, String breed, FurColor furColor,
-		Long catOwnerId);
+	CatDto create(CatInformation catInformation);
 
 	void delete(Long id);
 
 	CatDto get(Long id);
 
-	List<CatDto> getBy(String name, LocalDate dateOfBirth, String breed, FurColor furColor,
-		Long ownerId, List<Long> friendsIds, Pageable pageable);
+	List<CatDto> getBy(CatSearchOptions searchOptions);
 
 	void makeFriends(Long cat1Id, Long cat2Id);
 
@@ -25,5 +22,5 @@ public interface CatService {
 
 	boolean exists(Long id);
 
-	CatDto update(CatUpdateDto catDto);
+	CatDto update(CatUpdateInformation catUpdateInformation);
 }

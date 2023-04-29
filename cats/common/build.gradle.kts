@@ -14,6 +14,7 @@ repositories {
 dependencies {
 	api("org.projectlombok:lombok:1.18.22")
 	annotationProcessor("org.projectlombok:lombok:1.18.26")
+	api("org.springframework.boot:spring-boot-starter-security")
 }
 
 tasks.getByName<Test>("test") {

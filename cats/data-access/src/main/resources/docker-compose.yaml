@@ -1,0 +1,23 @@
+version: "3.9"
+
+networks:
+    dockerapi-dev:
+        driver: bridge
+
+volumes:
+    db:
+        driver: local
+
+services:
+    postgres_image:
+        image: postgres:13.3
+        volumes:
+            - db:/var/lib/postgresql/data
+        environment:
+            POSTGRES_DB: "cats"
+            POSTGRES_USER: "karim"
+            POSTGRES_PASSWORD: "123654"
+        ports:
+            - "5432:5432"
+        networks:
+            - dockerapi-dev
