@@ -8,8 +8,14 @@ import static ru.kslacker.cats.microservices.catowners.dataaccess.specifications
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.experimental.ExtensionMethod;
+import org.springframework.amqp.AmqpTimeoutException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -64,16 +70,19 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 	@Transactional
 	@RabbitListener(queues = "#{deleteOwnerQueue.name}", group = "#{amqpGroupName}",
 		returnExceptions = "true", errorHandler = "#{rabbitErrorHandler}")
+	@SneakyThrows
 	public boolean delete(@NonNull Long id) {
 
 		CatOwner owner = getCatOwnerById(id);
 
-		for (Cat cat : owner.getCats().stream().toList()) {
-			try {
-				amqpService.handleRequest("cat.delete", cat.getId(), Boolean.class);
-			} catch (EntityException ignored) {
+		List<Cat> cats = owner.getCats().stream().toList();
+		ExecutorService executor = Executors.newFixedThreadPool(cats.size());
+		List<? extends Future<?>> futures = cats.stream()
+			.map(cat -> executor.submit(() -> deleteCat(cat))).toList();
 
-			}
+
+		for (Future<?> future : futures) {
+			handleFuture(future);
 		}
 
 		catOwnerRepository.delete(owner);
@@ -136,6 +145,24 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 	private CatOwner getCatOwnerById(Long id) {
 		return catOwnerRepository.findById(id)
 			.orElseThrow(() -> EntityException.entityNotFound(CatOwner.class, id));
+	}
+
+	private void deleteCat(Cat cat) {
+		try {
+			amqpService.handleRequest("cat.delete", cat.getId(), Boolean.class);
+		} catch (EntityException ignored) {
+
+		}
+	}
+
+	private static void handleFuture(Future<?> future) throws Throwable {
+		try {
+			future.get();
+		} catch (InterruptedException e) {
+			throw new AmqpTimeoutException("Timeout exception");
+		} catch (ExecutionException e) {
+			throw e.getCause();
+		}
 	}
 
 }

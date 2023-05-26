@@ -50,7 +50,7 @@ public class User {
 	@Column(name = "password", nullable = false)
 	private String password;
 
-	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
 	@JoinColumn(name = "owner_id", updatable = false, insertable = false)
 	@ToString.Exclude
 	private CatOwner owner;
@@ -145,6 +145,7 @@ public class User {
 		private String username;
 		private String password;
 		private String email = null;
+		private CatOwner owner = null;
 		private Long ownerId = null;
 		private UserRole role = UserRole.USER;
 		private boolean enabled = true;
@@ -167,6 +168,12 @@ public class User {
 		@Override
 		public OptionalInfoUserBuilder withEmail(String email) {
 			this.email = email;
+			return this;
+		}
+
+		@Override
+		public OptionalInfoUserBuilder withOwner(CatOwner catOwner) {
+			this.owner = catOwner;
 			return this;
 		}
 

@@ -11,6 +11,8 @@ import static ru.kslacker.cats.microservices.users.dataaccess.specifications.Use
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -139,6 +141,13 @@ public class UserServiceImpl implements UserService {
 	public boolean delete(Long id) {
 
 		User user = getUserById(id);
+
+		if (user.getOwnerId() != null) {
+
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			executor.submit(() -> deleteOwner(user));
+		}
+
 		userRepository.delete(user);
 		return true;
 	}
@@ -243,9 +252,17 @@ public class UserServiceImpl implements UserService {
 		return userRepository.save(user).asDto();
 	}
 
-	public User getUserById(Long id) {
+	private User getUserById(Long id) {
 		return userRepository
 			.findById(id)
 			.orElseThrow(() -> EntityException.entityNotFound(User.class, id));
+	}
+
+	private void deleteOwner(User user) {
+		try {
+			amqpService.handleRequest("owner.delete", user.getOwnerId(), Boolean.class);
+		} catch (EntityException ignored) {
+
+		}
 	}
 }

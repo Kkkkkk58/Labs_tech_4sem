@@ -1,12 +1,14 @@
 package ru.kslacker.cats.microservices.jpaentities.userbuilder;
 
 import java.time.LocalDate;
+import ru.kslacker.cats.microservices.jpaentities.entities.CatOwner;
 import ru.kslacker.cats.microservices.jpaentities.entities.User;
 import ru.kslacker.cats.microservices.jpaentities.models.UserRole;
 
 public interface OptionalInfoUserBuilder {
 
 	OptionalInfoUserBuilder withEmail(String email);
+	OptionalInfoUserBuilder withOwner(CatOwner catOwner);
 
 	OptionalInfoUserBuilder withOwnerId(Long catOwnerId);
 
