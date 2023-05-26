@@ -42,10 +42,6 @@ public class RestControllerExceptionHandler {
 	}
 
 
-//	@ExceptionHandler({CatException.class,
-//		CatOwnerException.class,
-//		UserException.class,
-//		UserBuilderException.class})
 	@ExceptionHandler(CatsException.class)
 	@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
 	public ResponseEntity<ErrorMessage> domainException(CatsException exception) {

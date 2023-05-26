@@ -1,7 +1,8 @@
-package ru.kslacker.cats.microservices.common.exceptions;
+package ru.kslacker.cats.microservices.common.amqp;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.kslacker.cats.microservices.common.exceptions.CatsException;
 import java.io.Serializable;
 
 @Data

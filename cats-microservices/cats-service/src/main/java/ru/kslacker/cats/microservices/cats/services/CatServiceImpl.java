@@ -1,13 +1,20 @@
 package ru.kslacker.cats.microservices.cats.services;
 
+import static org.springframework.data.jpa.domain.Specification.where;
+import static ru.kslacker.cats.microservices.cats.dataaccess.specifications.CatSpecifications.withBreed;
+import static ru.kslacker.cats.microservices.cats.dataaccess.specifications.CatSpecifications.withDateOfBirth;
+import static ru.kslacker.cats.microservices.cats.dataaccess.specifications.CatSpecifications.withFriend;
+import static ru.kslacker.cats.microservices.cats.dataaccess.specifications.CatSpecifications.withFurColor;
+import static ru.kslacker.cats.microservices.cats.dataaccess.specifications.CatSpecifications.withName;
+import static ru.kslacker.cats.microservices.cats.dataaccess.specifications.CatSpecifications.withOwnerId;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
-import org.springframework.amqp.AmqpTimeoutException;
-import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.amqp.core.Exchange;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,19 +27,10 @@ import ru.kslacker.cats.microservices.cats.dto.FriendsInfo;
 import ru.kslacker.cats.microservices.cats.mapping.CatMapping;
 import ru.kslacker.cats.microservices.cats.services.api.CatService;
 import ru.kslacker.cats.microservices.cats.validation.service.api.ValidationService;
+import ru.kslacker.cats.microservices.common.amqp.api.AmqpRelyingService;
 import ru.kslacker.cats.microservices.jpaentities.entities.Cat;
+import ru.kslacker.cats.microservices.jpaentities.entities.CatOwner;
 import ru.kslacker.cats.microservices.jpaentities.exceptions.EntityException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static org.springframework.data.jpa.domain.Specification.where;
-import static ru.kslacker.cats.microservices.cats.dataaccess.specifications.CatSpecifications.withBreed;
-import static ru.kslacker.cats.microservices.cats.dataaccess.specifications.CatSpecifications.withDateOfBirth;
-import static ru.kslacker.cats.microservices.cats.dataaccess.specifications.CatSpecifications.withFriend;
-import static ru.kslacker.cats.microservices.cats.dataaccess.specifications.CatSpecifications.withFurColor;
-import static ru.kslacker.cats.microservices.cats.dataaccess.specifications.CatSpecifications.withName;
-import static ru.kslacker.cats.microservices.cats.dataaccess.specifications.CatSpecifications.withOwnerId;
 
 @Service
 @Transactional(readOnly = true)
@@ -41,21 +39,18 @@ public class CatServiceImpl implements CatService {
 
 	private final ValidationService validator;
 	private final CatRepository catRepository;
-	private final Exchange exchange;
-	private final AmqpTemplate amqpTemplate;
+	private final AmqpRelyingService amqpService;
 
 
 	@Autowired
 	public CatServiceImpl(
 		@NonNull ValidationService validator,
 		@NonNull CatRepository catRepository,
-		@NonNull Exchange exchange,
-		@NonNull AmqpTemplate amqpTemplate) {
+		@NonNull AmqpRelyingService amqpService) {
 
 		this.validator = validator;
 		this.catRepository = catRepository;
-		this.exchange = exchange;
-		this.amqpTemplate = amqpTemplate;
+		this.amqpService = amqpService;
 	}
 
 	@Override
@@ -90,7 +85,6 @@ public class CatServiceImpl implements CatService {
 		for (Cat friend : friends) {
 			friend.removeFriend(cat);
 		}
-		// TODO owner delete cat
 
 		catRepository.delete(cat);
 		return true;
@@ -183,33 +177,21 @@ public class CatServiceImpl implements CatService {
 		return catRepository.save(cat).asDto();
 	}
 
-	// TODO add NotFound exception
-	// TODO Use async request handler
 	private Cat getCatById(Long id) {
 		return catRepository.findById(id)
 			.orElseThrow(() -> EntityException.entityNotFound(Cat.class, id));
 	}
 
 	private void validateOwnerPresence(Long catOwnerId) {
+
 		Boolean ownerExists = isOwnerExist(catOwnerId);
-
-		if (ownerExists == null) {
-			throw new AmqpTimeoutException("//TODO");
-		}
-
-		// TODO
 		if (!Boolean.TRUE.equals(ownerExists)) {
-			throw new RuntimeException("//TODO");
+			throw EntityException.entityNotFound(CatOwner.class, catOwnerId);
 		}
 	}
 
 	private Boolean isOwnerExist(Long catOwnerId) {
-		return amqpTemplate.convertSendAndReceiveAsType(
-			exchange.getName(),
-			"owner.exists",
-			catOwnerId,
-			new ParameterizedTypeReference<>() {
-			});
+		return amqpService.handleRequest("owner.exists", catOwnerId, Boolean.class);
 	}
 }
 

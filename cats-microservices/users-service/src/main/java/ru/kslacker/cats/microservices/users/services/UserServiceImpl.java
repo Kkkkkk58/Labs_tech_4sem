@@ -19,10 +19,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kslacker.cats.microservices.common.amqp.api.AmqpRelyingService;
 import ru.kslacker.cats.microservices.jpaentities.entities.User;
 import ru.kslacker.cats.microservices.jpaentities.exceptions.EntityException;
 import ru.kslacker.cats.microservices.jpaentities.models.UserRole;
 import ru.kslacker.cats.microservices.users.dataaccess.repositories.api.UserRepository;
+import ru.kslacker.cats.microservices.users.dto.CatOwnerDto;
 import ru.kslacker.cats.microservices.users.dto.UserCreateDto;
 import ru.kslacker.cats.microservices.users.dto.UserDetails;
 import ru.kslacker.cats.microservices.users.dto.UserDto;
@@ -41,16 +43,19 @@ public class UserServiceImpl implements UserService {
 	private final UserRepository userRepository;
 	private final ValidationService validator;
 	private final PasswordEncoder passwordEncoder;
+	private final AmqpRelyingService amqpService;
 
 	@Autowired
 	public UserServiceImpl(
 		@NonNull ValidationService validator,
 		@NonNull PasswordEncoder passwordEncoder,
-		@NonNull UserRepository userRepository) {
+		@NonNull UserRepository userRepository,
+		@NonNull AmqpRelyingService amqpService) {
 
 		this.validator = validator;
 		this.passwordEncoder = passwordEncoder;
 		this.userRepository = userRepository;
+		this.amqpService = amqpService;
 	}
 
 	@Override
@@ -65,9 +70,7 @@ public class UserServiceImpl implements UserService {
 
 			validator.validate(createDto.catOwnerInformation());
 
-			// TODO send msg to save owner
-//			owner = catOwnerRepository.save(
-//				new CatOwner(catOwnerInformation.name(), catOwnerInformation.dateOfBirth()));
+			ownerId = amqpService.handleRequest("owner.create", createDto.catOwnerInformation(), CatOwnerDto.class).id();
 		}
 
 		UserRole role = createDto.userRole();
@@ -89,7 +92,6 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@RabbitListener(queues = "#{getUserQueue.name}", group = "#{amqpGroupName}", returnExceptions = "true", errorHandler = "#{rabbitErrorHandler}")
 	public UserDto get(@NonNull Long id) {
-		//throw new CatsException("EXAMPLE");
 		return getUserById(id).asDto();
 	}
 
@@ -106,15 +108,14 @@ public class UserServiceImpl implements UserService {
 				.and(withAccountExpirationDate(searchOptions.accountExpirationDate()))
 				.and(withCredentialsExpirationDate(searchOptions.credentialsExpirationDate()));
 
-		return userRepository.findAll(specification, searchOptions.pageable()).stream().asUserDto()
-			.toList();
+		return userRepository.findAll(specification, searchOptions.pageable()).stream().asUserDto().toList();
 	}
 
 	@Override
 	@RabbitListener(queues = "#{getUserByUsernameQueue}", group = "#{amqpGroupName}", returnExceptions = "true", errorHandler = "#{rabbitErrorHandler}")
 	public UserDetails loadByUsername(String username) {
-		// TODO
-		User user = userRepository.findByUsername(username).orElseThrow(() -> EntityException.entityNotFound(User.class, 0L));
+
+		User user = userRepository.findByUsername(username).orElseThrow(() -> EntityException.entityNotFound(User.class, username));
 
 		return UserDetails
 			.builder()
@@ -132,11 +133,11 @@ public class UserServiceImpl implements UserService {
 
 	}
 
-
 	@Override
 	@Transactional
 	@RabbitListener(queues = "#{deleteUserQueue.name}", group = "#{amqpGroupName}", returnExceptions = "true", errorHandler = "#{rabbitErrorHandler}")
 	public boolean delete(Long id) {
+
 		User user = getUserById(id);
 		userRepository.delete(user);
 		return true;

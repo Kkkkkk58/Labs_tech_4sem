@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,25 +23,29 @@ import ru.kslacker.cats.microservices.catowners.dto.CatOwnerUpdateInformation;
 import ru.kslacker.cats.microservices.catowners.mapping.CatOwnerMapping;
 import ru.kslacker.cats.microservices.catowners.services.api.CatOwnerService;
 import ru.kslacker.cats.microservices.catowners.validation.service.api.ValidationService;
+import ru.kslacker.cats.microservices.common.amqp.api.AmqpRelyingService;
+import ru.kslacker.cats.microservices.jpaentities.entities.Cat;
 import ru.kslacker.cats.microservices.jpaentities.entities.CatOwner;
 import ru.kslacker.cats.microservices.jpaentities.exceptions.EntityException;
 
 @Service
 @Transactional(readOnly = true)
 @ExtensionMethod({CatOwnerMapping.class})
-@Slf4j
 public class CatOwnerServiceImpl implements CatOwnerService {
 
 	private final ValidationService validator;
 	private final CatOwnerRepository catOwnerRepository;
+	private final AmqpRelyingService amqpService;
 
 	@Autowired
 	public CatOwnerServiceImpl(
 		@NonNull ValidationService validator,
-		@NonNull CatOwnerRepository catOwnerRepository) {
+		@NonNull CatOwnerRepository catOwnerRepository,
+		@NonNull AmqpRelyingService amqpService) {
 
 		this.validator = validator;
 		this.catOwnerRepository = catOwnerRepository;
+		this.amqpService = amqpService;
 	}
 
 	@Override
@@ -64,6 +67,15 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 	public boolean delete(@NonNull Long id) {
 
 		CatOwner owner = getCatOwnerById(id);
+
+		for (Cat cat : owner.getCats().stream().toList()) {
+			try {
+				amqpService.handleRequest("cat.delete", cat.getId(), Boolean.class);
+			} catch (EntityException ignored) {
+
+			}
+		}
+
 		catOwnerRepository.delete(owner);
 		return true;
 	}
@@ -120,12 +132,6 @@ public class CatOwnerServiceImpl implements CatOwnerService {
 
 		return catOwnerRepository.save(owner).asDto();
 	}
-
-	// TODO
-//	@Transactional
-//	public CatOwnerDto addCat(@Positive Long catId) {
-//
-//	}
 
 	private CatOwner getCatOwnerById(Long id) {
 		return catOwnerRepository.findById(id)

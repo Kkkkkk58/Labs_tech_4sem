@@ -2,16 +2,15 @@ package ru.kslacker.cats.microservices.cats.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.core.AsyncAmqpTemplate;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Declarables;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Exchange;
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.rabbit.listener.api.RabbitListenerErrorHandler;
-import org.springframework.amqp.rabbit.support.ListenerExecutionFailedException;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,11 +18,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Pageable;
-import ru.kslacker.cats.microservices.common.exceptions.TypeAwareExceptionWrapper;
+import ru.kslacker.cats.microservices.common.amqp.AmqpRelyingServiceImpl;
+import ru.kslacker.cats.microservices.common.amqp.RabbitErrorHandler;
+import ru.kslacker.cats.microservices.common.amqp.api.AmqpRelyingService;
 import ru.kslacker.cats.microservices.utils.json.PageableDeserializer;
 
 @Configuration
-public class AmqpConfiguration {
+public class AmqpConfig {
 
 	@Value("${rabbitmq.exchange.name:kslacker.cats}")
 	private String exchangeName;
@@ -116,22 +117,22 @@ public class AmqpConfiguration {
 	}
 
 	@Bean
-	@Primary
-	public AmqpTemplate jsonRabbitTemplate(RabbitTemplate rabbitTemplate) {
+	public RabbitTemplate jsonRabbitTemplate(ConnectionFactory connectionFactory) {
+		RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
 		rabbitTemplate.setMessageConverter(jackson2MessageConverter());
 		return rabbitTemplate;
 	}
 
-	@Configuration
-	public static class RabbitErrorHandler implements RabbitListenerErrorHandler {
+	@Bean
+	@Primary
+	public AsyncAmqpTemplate jsonRabbitAsyncTemplate(ConnectionFactory connectionFactory) {
 
-		@Override
-		public Object handleError(Message amqpMessage,
-			org.springframework.messaging.Message<?> message,
-			ListenerExecutionFailedException exception) {
+		return new AsyncRabbitTemplate(jsonRabbitTemplate(connectionFactory));
+	}
 
-			return new TypeAwareExceptionWrapper<>(exception.getCause());
-		}
+	@Bean
+	public AmqpRelyingService amqpService(ConnectionFactory connectionFactory) {
+		return new AmqpRelyingServiceImpl(jsonRabbitAsyncTemplate(connectionFactory), exchange(), advancedMapper());
 	}
 
 	@Bean
