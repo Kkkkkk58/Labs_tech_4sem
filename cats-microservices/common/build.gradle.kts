@@ -20,11 +20,6 @@ tasks.getByName<Test>("test") {
     useJUnitPlatform()
 }
 
-
-tasks.getByName("bootJar") {
-	enabled = false
-}
-
 tasks.getByName("jar") {
 	enabled = true
 }
