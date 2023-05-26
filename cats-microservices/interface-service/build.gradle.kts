@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.kslacker.cats.microservices"
-version = "unspecified"
+version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -24,11 +24,7 @@ dependencies {
 	implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
 	implementation("org.springframework.boot:spring-boot-starter-amqp")
 	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:4.0.1")
-	implementation("io.micrometer:micrometer-tracing-bridge-brave:1.1.1")
-	implementation("io.zipkin.reporter2:zipkin-reporter-brave:2.16.4")
-	implementation("io.micrometer:micrometer-observation:1.11.0")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
-	implementation("io.micrometer:micrometer-registry-prometheus:1.11.0")
 	implementation("org.postgresql:postgresql:42.2.27")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
 	implementation("com.github.therapi:therapi-runtime-javadoc:0.15.0")

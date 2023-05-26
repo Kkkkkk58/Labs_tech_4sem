@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.kslacker.cats.microservices"
-version = "unspecified"
+version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -22,8 +22,4 @@ dependencies {
 
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
-}
-
-tasks.getByName("jar") {
-	enabled = true
 }
