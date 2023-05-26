@@ -33,5 +33,5 @@ bin/
 .gradle/
 build/
 
-### Auto-generated Liquibase sources ###
-.jpb/
+### Rabbit MQ cookie ##
+**/rabbitmq/
