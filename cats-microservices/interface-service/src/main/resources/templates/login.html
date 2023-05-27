@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>LJGS Cats - Вход</title>
+	<link th:href="@{/assets/css/style.css}" rel="stylesheet">
+</head>
+<body>
+<header><h1>LJGS Cats</h1>
+	<nav>
+		<ul>
+			<li><a href="/index.html">Главная</a></li>
+			<li><a href="#">Котики</a></li>
+			<li><a href="#">Владельцы</a></li>
+			<li><a href="#">О нас</a></li>
+		</ul>
+	</nav>
+</header>
+<main>
+	<section><h2>Вход</h2>
+		<div th:if="${param.error}">
+			<p class="text-danger">Invalid username and password.</p>
+		</div>
+		<div th:if="${param.logout}">
+			<p class="text-warning">You have been logged out.</p>
+		</div>
+
+		<form th:action="@{/login}" method="post" role="form">
+
+			<label for="username">Имя пользователя:</label>
+			<input type="text" id="username" name="username" autofocus="autofocus" required><br><br>
+			<label for="password">Пароль:</label>
+			<input type="password" id="password" name="password" required><br><br>
+			<button type="submit">Войти</button>
+		</form>
+	</section>
+</main>
+<footer><p>© 2023 LJGS Cats. All Rights Reserved.</p></footer>
+
+</body>
+</html>

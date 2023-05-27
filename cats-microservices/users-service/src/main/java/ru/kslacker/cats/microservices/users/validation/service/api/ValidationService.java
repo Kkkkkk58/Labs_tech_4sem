@@ -1,0 +1,7 @@
+package ru.kslacker.cats.microservices.users.validation.service.api;
+
+public interface ValidationService {
+
+	<T> void validate(T t);
+}
+
